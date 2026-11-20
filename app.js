@@ -44,8 +44,6 @@ const els = {
   kpiZone1Meta: document.getElementById("kpiZone1Meta"),
   kpiZone2Meta: document.getElementById("kpiZone2Meta"),
   kpiZone3Meta: document.getElementById("kpiZone3Meta"),
-  categoryBars: document.getElementById("categoryBars"),
-  timelineBars: document.getElementById("timelineBars"),
   searchInput: document.getElementById("searchInput"),
   timeframeSelect: document.getElementById("timeframeSelect"),
   subgenreSelect: document.getElementById("subgenreSelect"),
@@ -539,73 +537,6 @@ function renderKPIs() {
   els.savedFilterBtn.setAttribute("aria-pressed", String(state.filters.savedOnly));
 }
 
-function renderCharts() {
-  const total = state.events.length || 1;
-  const catOrder = ["Music", "Plays", "Sports", "Other"];
-  const catCounts = {};
-  for (const e of state.events) {
-    catCounts[e.broadCategory] = (catCounts[e.broadCategory] || 0) + 1;
-  }
-
-  els.categoryBars.innerHTML = catOrder
-    .filter((k) => catCounts[k] > 0)
-    .map((k) => {
-      const count = catCounts[k];
-      const pct = ((count / total) * 100).toFixed(1);
-      const cls = k.toLowerCase();
-      return `
-        <button class="bar-row" type="button" data-chart-cat="${k}">
-          <span class="bar-label">${escapeHtml(getBroadCategoryLabel(k))}</span>
-          <span class="bar-track"><span class="bar-fill ${cls}" style="width: ${pct}%"></span></span>
-          <span class="bar-count">${count}</span>
-        </button>
-      `;
-    })
-    .join("");
-
-  els.categoryBars.querySelectorAll("[data-chart-cat]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const cat = btn.dataset.chartCat;
-      state.filters.category = state.filters.category === cat ? "all" : cat;
-      syncFilterUI();
-      renderAll();
-    });
-  });
-
-  // Weekly pace
-  const weekBuckets = new Map();
-  const fmtWeek = new Intl.DateTimeFormat("en-IN", { month: "short", day: "numeric" });
-  const datedEvents = state.events.filter((e) => e.startDate).sort((a, b) => a.startDate - b.startDate);
-  for (const ev of datedEvents) {
-    const d = new Date(ev.startDate);
-    const day = d.getDay();
-    const diffToMon = (day + 6) % 7;
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - diffToMon);
-    const key = monday.toISOString().slice(0, 10);
-    if (!weekBuckets.has(key)) {
-      weekBuckets.set(key, { label: `Wk of ${fmtWeek.format(monday)}`, count: 0 });
-    }
-    weekBuckets.get(key).count += 1;
-  }
-
-  const weeks = [...weekBuckets.values()].slice(0, 6);
-  const maxWeek = Math.max(...weeks.map((w) => w.count), 1);
-
-  els.timelineBars.innerHTML = weeks
-    .map((w) => {
-      const pct = ((w.count / maxWeek) * 100).toFixed(1);
-      return `
-        <div class="bar-row static">
-          <span class="bar-label">${escapeHtml(w.label)}</span>
-          <span class="bar-track"><span class="bar-fill week" style="width: ${pct}%"></span></span>
-          <span class="bar-count">${w.count}</span>
-        </div>
-      `;
-    })
-    .join("");
-}
-
 function hasActiveFilters() {
   const f = state.filters;
   return (
@@ -922,7 +853,6 @@ function resetFilters() {
 
 function renderAll() {
   renderKPIs();
-  renderCharts();
   renderEvents();
 }
 
