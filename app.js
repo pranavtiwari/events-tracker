@@ -4,6 +4,8 @@ const XLSX_EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID
 const GVIZ_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
 const FALLBACK_URL = "data/fallback-events.json";
 const STORAGE_KEY_SAVED = "blr_events_saved_v1";
+const STORAGE_KEY_SEEN = "blr_events_seen_v1";
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
 
 const state = {
   title: "Bengaluru Upcoming Events",
@@ -18,6 +20,7 @@ const state = {
     locality: "all",
     timeframe: "all",
     savedOnly: false,
+    newOnly: false,
   },
   sort: "dateAsc",
   view: "cards",
@@ -35,6 +38,8 @@ const els = {
   dashboardSubtitle: document.getElementById("dashboardSubtitle"),
   savedFilterBtn: document.getElementById("savedFilterBtn"),
   savedCountBadge: document.getElementById("savedCountBadge"),
+  newOnlyBtn: document.getElementById("newOnlyBtn"),
+  newCountBadge: document.getElementById("newCountBadge"),
   viewBtns: document.querySelectorAll(".view-btn"),
   kpiCards: document.querySelectorAll(".kpi-card"),
   kpiAllCount: document.getElementById("kpiAllCount"),
@@ -70,6 +75,23 @@ function loadSavedIds() {
 function persistSavedIds() {
   try {
     localStorage.setItem(STORAGE_KEY_SAVED, JSON.stringify([...state.savedIds]));
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function loadSeenMap() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_SEEN);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistSeenMap(map) {
+  try {
+    localStorage.setItem(STORAGE_KEY_SEEN, JSON.stringify(map));
   } catch {
     // ignore storage errors
   }
@@ -262,6 +284,12 @@ function parseXlsxWorkbook(arrayBuffer) {
   const idxLocality = colMap["locality"] ?? 6;
   const idxSummary = colMap["summary"] ?? 7;
   const idxLink = colMap["booking link"] ?? 8;
+  const idxAdded =
+    colMap["added at"] ??
+    colMap["added"] ??
+    colMap["date added"] ??
+    colMap["created"] ??
+    colMap["timestamp"];
 
   const events = [];
   for (let r = headerRow + 1; r <= range.e.r; r++) {
@@ -291,6 +319,20 @@ function parseXlsxWorkbook(arrayBuffer) {
     const linkCell = getCell(r, idxLink);
     const bookingLink = extractHyperlinkFromCell(linkCell);
 
+    let addedAt = null;
+    if (idxAdded !== undefined) {
+      const addedCell = getCell(r, idxAdded);
+      if (addedCell) {
+        if (addedCell.t === "n" && addedCell.v > 30000) {
+          const utcMs = Math.round((addedCell.v - 25569) * 86400 * 1000);
+          addedAt = utcMs;
+        } else {
+          const parsed = Date.parse(getText(r, idxAdded));
+          if (!Number.isNaN(parsed)) addedAt = parsed;
+        }
+      }
+    }
+
     events.push(
       enrichEvent({
         priorityZone: getText(r, idxZone),
@@ -302,6 +344,7 @@ function parseXlsxWorkbook(arrayBuffer) {
         locality: getText(r, idxLocality),
         summary: getText(r, idxSummary),
         bookingLink,
+        addedAt,
       })
     );
   }
@@ -403,12 +446,53 @@ function setSyncStatus(mode, text) {
   els.syncStatusText.textContent = text;
 }
 
-function applyLoadedData(data, source) {
+async function applyNewEventFlags(events) {
+  const now = Date.now();
+  let seenMap = loadSeenMap();
+
+  // On first visit, seed seenMap from fallback baseline (marked >24h old)
+  // so only newly added events in the live sheet are highlighted as <24h.
+  if (!seenMap) {
+    seenMap = {};
+    const olderThan24h = now - (TWENTY_FOUR_HOURS_MS + 60 * 60 * 1000);
+    try {
+      const res = await fetch(FALLBACK_URL, { cache: "no-store" });
+      if (res.ok) {
+        const baseline = await res.json();
+        for (const raw of baseline.events || []) {
+          seenMap[makeEventId(raw)] = olderThan24h;
+        }
+      }
+    } catch {
+      // ignore baseline fetch errors
+    }
+  }
+
+  for (const ev of events) {
+    if (ev.addedAt != null) {
+      ev.firstSeenAt = ev.addedAt;
+      ev.isNew24h = now - ev.addedAt <= TWENTY_FOUR_HOURS_MS && ev.addedAt <= now + 60000;
+      seenMap[ev.id] = ev.addedAt;
+    } else {
+      if (seenMap[ev.id] == null) {
+        seenMap[ev.id] = now;
+      }
+      ev.firstSeenAt = seenMap[ev.id];
+      ev.isNew24h = now - seenMap[ev.id] <= TWENTY_FOUR_HOURS_MS;
+    }
+  }
+
+  persistSeenMap(seenMap);
+}
+
+async function applyLoadedData(data, source) {
   state.title = data.title || state.title;
   state.subtitle = data.subtitle || state.subtitle;
   state.events = data.events || [];
   state.syncSource = source;
   state.lastSynced = new Date();
+
+  await applyNewEventFlags(state.events);
 
   els.dashboardTitle.textContent = state.title;
   els.dashboardSubtitle.textContent = state.subtitle;
@@ -446,7 +530,7 @@ function populateDynamicSelects() {
 }
 
 function getFilteredEvents() {
-  const { search, zone, category, subgenre, locality, timeframe, savedOnly } = state.filters;
+  const { search, zone, category, subgenre, locality, timeframe, savedOnly, newOnly } = state.filters;
   const q = search.trim().toLowerCase();
 
   const today = new Date();
@@ -454,6 +538,7 @@ function getFilteredEvents() {
 
   const filtered = state.events.filter((ev) => {
     if (savedOnly && !state.savedIds.has(ev.id)) return false;
+    if (newOnly && !ev.isNew24h) return false;
     if (zone !== "all" && ev.priorityZone !== zone) return false;
     if (category !== "all" && ev.broadCategory !== category) return false;
     if (subgenre !== "all" && ev.category !== subgenre) return false;
@@ -517,6 +602,7 @@ function renderKPIs() {
   const z1 = state.events.filter((e) => e.priorityZone.includes("Priority 1")).length;
   const z2 = state.events.filter((e) => e.priorityZone.includes("Priority 2")).length;
   const z3 = state.events.filter((e) => e.priorityZone.includes("Priority 3")).length;
+  const newCount = state.events.filter((e) => e.isNew24h).length;
 
   const pct = (n) => (total ? `${((n / total) * 100).toFixed(1)}% of total` : "0%");
 
@@ -535,6 +621,9 @@ function renderKPIs() {
 
   els.savedCountBadge.textContent = state.savedIds.size;
   els.savedFilterBtn.setAttribute("aria-pressed", String(state.filters.savedOnly));
+
+  els.newCountBadge.textContent = newCount;
+  els.newOnlyBtn.setAttribute("aria-pressed", String(state.filters.newOnly));
 }
 
 function hasActiveFilters() {
@@ -546,7 +635,8 @@ function hasActiveFilters() {
     f.subgenre !== "all" ||
     f.locality !== "all" ||
     f.timeframe !== "all" ||
-    f.savedOnly
+    f.savedOnly ||
+    f.newOnly
   );
 }
 
@@ -557,9 +647,10 @@ function syncFilterUI() {
   els.localitySelect.value = state.filters.locality;
   els.sortSelect.value = state.sort;
 
-  els.categoryPills.querySelectorAll(".filter-pill").forEach((pill) => {
+  els.categoryPills.querySelectorAll("[data-category]").forEach((pill) => {
     pill.classList.toggle("active", pill.dataset.category === state.filters.category);
   });
+  els.newOnlyBtn.setAttribute("aria-pressed", String(state.filters.newOnly));
 
   els.resetFiltersBtn.classList.toggle("hidden", !hasActiveFilters());
 }
@@ -596,12 +687,17 @@ function renderBookmarkSvg() {
   return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>`;
 }
 
+function renderNewBadgeHtml(ev) {
+  return ev.isNew24h ? `<span class="new-badge" title="Added in the last 24 hours">New · 24h</span>` : "";
+}
+
 function renderCardHtml(ev) {
   const isSaved = state.savedIds.has(ev.id);
   return `
-    <article class="event-card" data-event-id="${escapeHtml(ev.id)}" tabindex="0">
+    <article class="event-card${ev.isNew24h ? " is-new" : ""}" data-event-id="${escapeHtml(ev.id)}" tabindex="0">
       <div class="card-top">
         <div class="badge-row">
+          ${renderNewBadgeHtml(ev)}
           <span class="zone-badge ${ev.zoneClass}">${escapeHtml(ev.zoneShort)}</span>
           <span class="cat-badge">${escapeHtml(ev.category)}</span>
         </div>
@@ -650,9 +746,10 @@ function renderTimelineHtml(list) {
             .map((ev) => {
               const isSaved = state.savedIds.has(ev.id);
               return `
-                <div class="timeline-item" data-event-id="${escapeHtml(ev.id)}" tabindex="0">
+                <div class="timeline-item${ev.isNew24h ? " is-new" : ""}" data-event-id="${escapeHtml(ev.id)}" tabindex="0">
                   <div class="timeline-item-main">
                     <div class="badge-row">
+                      ${renderNewBadgeHtml(ev)}
                       <span class="zone-badge ${ev.zoneClass}">${escapeHtml(ev.zoneShort)}</span>
                       <span class="cat-badge">${escapeHtml(ev.category)}</span>
                       ${ev.time ? `<span class="cat-badge">${escapeHtml(ev.time)}</span>` : ""}
@@ -697,13 +794,16 @@ function renderTableHtml(list) {
             .map((ev) => {
               const isSaved = state.savedIds.has(ev.id);
               return `
-                <tr data-event-id="${escapeHtml(ev.id)}">
+                <tr class="${ev.isNew24h ? "is-new" : ""}" data-event-id="${escapeHtml(ev.id)}">
                   <td style="white-space:nowrap;font-family:var(--font-mono);font-size:0.78rem;">
                     <div><strong>${escapeHtml(ev.displayDate)}</strong></div>
                     <div style="color:var(--text-muted)">${escapeHtml(ev.time || "TBA")}</div>
                   </td>
                   <td>
-                    <div style="font-weight:700;">${escapeHtml(ev.eventName)}</div>
+                    <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;font-weight:700;">
+                      <span>${escapeHtml(ev.eventName)}</span>
+                      ${renderNewBadgeHtml(ev)}
+                    </div>
                     ${ev.priceTag ? `<span class="price-tag" style="margin-top:4px;display:inline-block;">${escapeHtml(ev.priceTag)}</span>` : ""}
                   </td>
                   <td><span class="cat-badge">${escapeHtml(ev.category)}</span></td>
@@ -790,6 +890,7 @@ function openEventModal(id) {
 
   els.modalBody.innerHTML = `
     <div class="badge-row">
+      ${renderNewBadgeHtml(ev)}
       <span class="zone-badge ${ev.zoneClass}">${escapeHtml(ev.priorityZone)}</span>
       <span class="cat-badge">${escapeHtml(ev.category)}</span>
     </div>
@@ -846,6 +947,7 @@ function resetFilters() {
     locality: "all",
     timeframe: "all",
     savedOnly: false,
+    newOnly: false,
   };
   syncFilterUI();
   renderAll();
@@ -891,6 +993,12 @@ els.savedFilterBtn.addEventListener("click", () => {
   renderAll();
 });
 
+els.newOnlyBtn.addEventListener("click", () => {
+  state.filters.newOnly = !state.filters.newOnly;
+  syncFilterUI();
+  renderEvents();
+});
+
 els.kpiCards.forEach((card) => {
   card.addEventListener("click", () => {
     const zone = card.dataset.zone;
@@ -899,7 +1007,7 @@ els.kpiCards.forEach((card) => {
   });
 });
 
-els.categoryPills.querySelectorAll(".filter-pill").forEach((pill) => {
+els.categoryPills.querySelectorAll("[data-category]").forEach((pill) => {
   pill.addEventListener("click", () => {
     state.filters.category = pill.dataset.category;
     syncFilterUI();

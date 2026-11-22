@@ -127,6 +127,11 @@
             <button class="filter-pill" type="button" data-category="Music">Live Music &amp; Concerts</button>
             <button class="filter-pill" type="button" data-category="Plays">Plays &amp; Theatre</button>
             <button class="filter-pill" type="button" data-category="Sports">Sports &amp; Tournaments</button>
+            <button id="newOnlyBtn" class="filter-pill new-pill" type="button" aria-pressed="false" title="Show only events added in the last 24 hours">
+              <span class="new-dot"></span>
+              <span>Added &lt;24h</span>
+              <span id="newCountBadge" class="pill-count">0</span>
+            </button>
           </div>
           <div class="results-meta">
             <span id="resultsCountText">Loading events…</span>
