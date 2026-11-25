@@ -1,6 +1,6 @@
 # The Primegraph Chronicle
 
-A multi-page, live-synced personal newspaper hosted on GitHub Pages (`events.primegraph.in`), powered directly by the 5 files in the [Google Drive source folder](https://drive.google.com/drive/folders/1cVHSyWRqsO2JVQhBGjZRvfGex4yH4EVy?usp=sharing).
+A multi-page, live-synced personal newspaper hosted on GitHub Pages (`biscope.primegraph.in`), powered directly by the 5 files in the [Google Drive source folder](https://drive.google.com/drive/folders/1cVHSyWRqsO2JVQhBGjZRvfGex4yH4EVy?usp=sharing).
 
 ## Pages & Live Sources
 
