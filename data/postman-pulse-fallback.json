@@ -1,0 +1,1169 @@
+[
+  {
+    "date": "2026-10-02",
+    "overall_score": -24,
+    "mentions_count": 4,
+    "confidence": "medium",
+    "pos_pct": 0,
+    "neu_pct": 25,
+    "neg_pct": 75,
+    "news_blogs_score": -30,
+    "dev_communities_score": null,
+    "review_sites_score": null,
+    "social_video_score": -5,
+    "insomnia_score": 3,
+    "bruno_score": 15,
+    "hoppscotch_score": 40,
+    "apidog_score": null,
+    "doing_well": [
+      {
+        "theme": "Feature-rich testing & mock ecosystem",
+        "count": 1,
+        "summary": "Developer comparisons still recognize Postman as a comprehensive Swiss Army knife for mock servers and team API workflows.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "http://www.youtube.com/watch?v=LEHAfr5Bigw"
+          }
+        ]
+      }
+    ],
+    "doing_poorly": [
+      {
+        "theme": "1-user Free tier & enterprise shift to Bruno",
+        "count": 2,
+        "summary": "Engineering write-ups and vendor KBs (including Omnissa dropping Postman collections for Bruno) cite paid team seats and cloud-tethered Git sync as migration triggers.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://habr.com/ru/articles/1088128/"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://kb.omnissa.com/s/article/6001812"
+          }
+        ]
+      },
+      {
+        "theme": "Electron bulk & forced cloud logins",
+        "count": 2,
+        "summary": "Blog and short-form video reviews continue faulting Postman as heavy, resource-intensive, and login-gated compared with Hoppscotch and Insomnia.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://medium.com/@harendra21/top-7-less-known-open-source-saas-for-developers-ff85a391895a"
+          },
+          {
+            "label": "Source 2",
+            "url": "http://www.youtube.com/watch?v=LEHAfr5Bigw"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": -25,
+        "title": "\u042d\u043a\u0441\u043f\u043e\u0440\u0442 \u043a\u043e\u043b\u043b\u0435\u043a\u0446\u0438\u0438 API-\u0437\u0430\u043f\u0440\u043e\u0441\u043e\u0432 \u0432 \u0444\u0430\u0439\u043b\u044b \u0434\u043b\u044f git (Habr)",
+        "url": "https://habr.com/ru/articles/1088128/",
+        "meta": "Habr \u00b7 8.4K views; praises Postman UX but cites 1-user free tier, cloud-tethered Native Git, and VPN/secret issues."
+      },
+      {
+        "score": -30,
+        "title": "Top 7 Less-Known Open Source SaaS for Developers",
+        "url": "https://medium.com/@harendra21/top-7-less-known-open-source-saas-for-developers-ff85a391895a",
+        "meta": "Medium \u00b7 Criticizes Postman as a bulky Electron app when recommending Hoppscotch."
+      },
+      {
+        "score": -35,
+        "title": "Workspace ONE UEM API Collections Are Now Available in Bruno",
+        "url": "https://kb.omnissa.com/s/article/6001812",
+        "meta": "Omnissa KB \u00b7 Enterprise vendor removed official Postman collections and replaced them with Bruno."
+      },
+      {
+        "score": -5,
+        "title": "Postman vs Insomnia #shorts",
+        "url": "http://www.youtube.com/watch?v=LEHAfr5Bigw",
+        "meta": "YouTube (TryPitch) \u00b7 1.4K views; calls Postman a feature-rich Swiss Army knife but heavy and login-gated."
+      }
+    ]
+  },
+  {
+    "date": "2026-10-09",
+    "overall_score": -22,
+    "mentions_count": 6,
+    "confidence": "high",
+    "pos_pct": 17,
+    "neu_pct": 33,
+    "neg_pct": 50,
+    "news_blogs_score": 35,
+    "dev_communities_score": -53,
+    "review_sites_score": null,
+    "social_video_score": -3,
+    "insomnia_score": 9,
+    "bruno_score": 32,
+    "hoppscotch_score": 35,
+    "apidog_score": 45,
+    "doing_well": [
+      {
+        "theme": "AI-native ecosystem, Agent Mode & multi-protocol depth",
+        "count": 2,
+        "summary": "Dev.to rankings and technical breakdowns praise Postman's Agent Mode, MCP server, multi-protocol debugging, and mature automated testing suites.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://dev.to/therealmrmumba/5-best-ai-native-api-platforms-for-developers-in-2026-3l7c"
+          },
+          {
+            "label": "Source 2",
+            "url": "http://www.youtube.com/watch?v=FHwBVYi62Is"
+          }
+        ]
+      }
+    ],
+    "doing_poorly": [
+      {
+        "theme": "QA & developer exodus over cloud/AI bloat and pricing",
+        "count": 3,
+        "summary": "Active Reddit threads across r/QualityAssurance, r/Everything_QA, and r/ZedEditor criticize slow Electron performance, constant login prompts, and paid team walls, driving moves to Bruno and Playwright.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://www.reddit.com/r/QualityAssurance/comments/1x11p81/comparing_bruno_vs_postman_for_api_testing_whats/"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://www.reddit.com/r/Everything_QA/comments/1x0sguy/bruno_or_insomnia_for_qa_testing/"
+          },
+          {
+            "label": "Source 3",
+            "url": "https://www.reddit.com/r/ZedEditor/comments/1wxjuu8/zaku_260_localfirst_opensource_api_client_built/"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": 35,
+        "title": "5 Best AI-Native API Platforms for Developers in 2026",
+        "url": "https://dev.to/therealmrmumba/5-best-ai-native-api-platforms-for-developers-in-2026-3l7c",
+        "meta": "Dev.to \u00b7 Ranks Postman #2 among AI-native API platforms for Agent Mode, MCP server, and Postman CLI."
+      },
+      {
+        "score": 0,
+        "title": "Postman vs Swagger: Full Architecture & Benchmark Breakdown (2026)",
+        "url": "http://www.youtube.com/watch?v=FHwBVYi62Is",
+        "meta": "YouTube (DevStackMatrix) \u00b7 Credits multi-protocol debugging & JS scripting; notes Newman memory overhead and cloud sync."
+      },
+      {
+        "score": -5,
+        "title": "ST 70 | Postman vs Insomnia | Software Testing Course",
+        "url": "https://www.youtube.com/watch?v=AvhQpx2Pglk",
+        "meta": "YouTube (Uplatz) \u00b7 Praises mature test suites and mocks, but flags bloated workspace overhead."
+      },
+      {
+        "score": -45,
+        "title": "Zaku 26.0 - Local-first, open-source API client built with Zed's GPUI",
+        "url": "https://www.reddit.com/r/ZedEditor/comments/1wxjuu8/zaku_260_localfirst_opensource_api_client_built/",
+        "meta": "Reddit r/ZedEditor \u00b7 244 upvotes, 45 comments; developers criticize Postman's slow Electron bloat."
+      },
+      {
+        "score": -50,
+        "title": "Bruno or Insomnia for QA testing",
+        "url": "https://www.reddit.com/r/Everything_QA/comments/1x0sguy/bruno_or_insomnia_for_qa_testing/",
+        "meta": "Reddit r/Everything_QA \u00b7 17 comments; QA engineers call Postman slow, expensive, login-heavy, and painful for free sharing."
+      },
+      {
+        "score": -65,
+        "title": "comparing Bruno vs Postman for API testing. What's your real-world experience?",
+        "url": "https://www.reddit.com/r/QualityAssurance/comments/1x11p81/comparing_bruno_vs_postman_for_api_testing_whats/",
+        "meta": "Reddit r/QualityAssurance \u00b7 13 comments; users criticize cloud/AI bloat and report migrating to Bruno or Playwright."
+      }
+    ]
+  },
+  {
+    "date": "2026-10-16",
+    "overall_score": -45,
+    "mentions_count": 2,
+    "confidence": "low",
+    "pos_pct": 0,
+    "neu_pct": 0,
+    "neg_pct": 100,
+    "news_blogs_score": -35,
+    "dev_communities_score": -55,
+    "review_sites_score": null,
+    "social_video_score": null,
+    "insomnia_score": -45,
+    "bruno_score": 33,
+    "hoppscotch_score": -20,
+    "apidog_score": null,
+    "doing_well": [],
+    "doing_poorly": [
+      {
+        "theme": "Heavy desktop bloat & forced cloud sign-ins",
+        "count": 2,
+        "summary": "A viral r/ObsidianMD thread (209 upvotes) and a Medium Mac developer roundup fault Postman for heavy workspaces and relentless login/cloud prompts for simple request testing.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://www.reddit.com/r/ObsidianMD/comments/1x5sjj0/postman_was_too_much_so_i_built_a_lightweight_api/"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://javascript.plainenglish.io/8-best-mac-apps-for-developers-in-2026-4d0186d34d80"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": -35,
+        "title": "8 Best Mac Apps for Developers in 2026",
+        "url": "https://javascript.plainenglish.io/8-best-mac-apps-for-developers-in-2026-4d0186d34d80",
+        "meta": "Medium \u00b7 Criticizes Postman for pushing logins and cloud sync while recommending Bruno as a free offline alternative."
+      },
+      {
+        "score": -55,
+        "title": "Postman was too much, so I built a lightweight API client for Obsidian",
+        "url": "https://www.reddit.com/r/ObsidianMD/comments/1x5sjj0/postman_was_too_much_so_i_built_a_lightweight_api/",
+        "meta": "Reddit r/ObsidianMD \u00b7 209 upvotes, 60 comments; strong backlash against sign-ins, heavy workspaces, and cloud-everything bloat."
+      }
+    ]
+  },
+  {
+    "date": "2026-10-23",
+    "overall_score": -41,
+    "mentions_count": 5,
+    "confidence": "medium",
+    "pos_pct": 0,
+    "neu_pct": 0,
+    "neg_pct": 100,
+    "news_blogs_score": -25,
+    "dev_communities_score": -45,
+    "review_sites_score": null,
+    "social_video_score": null,
+    "insomnia_score": -20,
+    "bruno_score": -7,
+    "hoppscotch_score": null,
+    "apidog_score": null,
+    "doing_well": [],
+    "doing_poorly": [
+      {
+        "theme": "Sync reliability & reverting request/token data",
+        "count": 1,
+        "summary": "GitHub Issue #14357 reports saved JSON bodies reverting and environment API tokens being overwritten in Postman v12.32\u2013v12.33, pushing users toward local file-based tools.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://github.com/postmanlabs/postman-app-support/issues/14357"
+          }
+        ]
+      },
+      {
+        "theme": "Forced accounts, 1-user Free cap & indie alternatives",
+        "count": 4,
+        "summary": "A Stackademic migration guide and three Reddit threads (r/golang, r/foss, r/tauri) highlight developers building or switching to no-account, lightweight local clients.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://blog.stackademic.com/why-we-switched-from-postman-to-bruno-and-why-your-team-might-too-d092faeae723"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://www.reddit.com/r/golang/comments/1xci2qq/gostman_one_go_request_engine_behind_a_desktop/"
+          },
+          {
+            "label": "Source 3",
+            "url": "https://www.reddit.com/r/foss/comments/1xdgpnt/i_built_an_opensource_postman_alternative_in_go/"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": -25,
+        "title": "Why We Switched from Postman to Bruno (and Why Your Team Might Too)",
+        "url": "https://blog.stackademic.com/why-we-switched-from-postman-to-bruno-and-why-your-team-might-too-d092faeae723",
+        "meta": "Medium (Stackademic) \u00b7 Cites shared overwrite bugs, 1-user Free tier, and cloud friction, while noting Postman's edge for hosted mocks/governance."
+      },
+      {
+        "score": -30,
+        "title": "I built a lightweight API client using React, Tauri & Rust",
+        "url": "https://www.reddit.com/r/tauri/comments/1xah1f4/i_built_a_lightweight_api_client_using_react/",
+        "meta": "Reddit r/tauri \u00b7 Built a ~30 MB Tauri client to escape heavy Electron memory overhead and forced sign-ins."
+      },
+      {
+        "score": -35,
+        "title": "Gostman: one Go request engine behind a desktop app, a CLI and a web proxy",
+        "url": "https://www.reddit.com/r/golang/comments/1xci2qq/gostman_one_go_request_engine_behind_a_desktop/",
+        "meta": "Reddit r/golang \u00b7 87 upvotes, 15 comments; highlights demand for Postman/Bruno alternatives without paid tiers or accounts."
+      },
+      {
+        "score": -40,
+        "title": "I built an open-source Postman alternative in Go, and the whole thing works without an account",
+        "url": "https://www.reddit.com/r/foss/comments/1xdgpnt/i_built_an_opensource_postman_alternative_in_go/",
+        "meta": "Reddit r/foss \u00b7 16 comments; developer cites frustration with clients requiring accounts before sending a GET request."
+      },
+      {
+        "score": -75,
+        "title": "Postman Nightmare \u00b7 Issue #14357",
+        "url": "https://github.com/postmanlabs/postman-app-support/issues/14357",
+        "meta": "GitHub \u00b7 Users on v12.32/v12.33 report saved request bodies reverting and environment tokens overwritten, threatening migration."
+      }
+    ]
+  },
+  {
+    "date": "2026-10-30",
+    "overall_score": -68,
+    "mentions_count": 6,
+    "confidence": "high",
+    "pos_pct": 0,
+    "neu_pct": 0,
+    "neg_pct": 100,
+    "news_blogs_score": -20,
+    "dev_communities_score": -78,
+    "review_sites_score": null,
+    "social_video_score": null,
+    "insomnia_score": -5,
+    "bruno_score": 35,
+    "hoppscotch_score": null,
+    "apidog_score": null,
+    "doing_well": [],
+    "doing_poorly": [
+      {
+        "theme": "Silent AI plugin auto-install & self-approving Codex hook (#14370)",
+        "count": 4,
+        "summary": "Reports on GitHub (#14370, 315+ upvotes) and Reddit (r/ClaudeAI, r/codex, r/postman_api) expose Postman Desktop 12.33.4 silently installing Claude Code/Codex plugins and attempting to self-approve its hook.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://github.com/postmanlabs/postman-app-support/issues/14370"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://www.reddit.com/r/ClaudeAI/comments/1xfauxa/postman_desktop_automatically_installed_a_claude/"
+          },
+          {
+            "label": "Source 3",
+            "url": "https://www.reddit.com/r/codex/comments/1xfartn/postman_autoinstalled_a_global_codex_plugin_on_my/"
+          }
+        ]
+      },
+      {
+        "theme": "Auto-vaulting breaking auth & small-team pricing friction",
+        "count": 2,
+        "summary": "Users report Postman 12.34.0 auto-vaulting Bearer headers broke auth to deployed services, while European comparisons criticize $19\u2013$23/mo Team pricing versus Bruno's $6/mo tier.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://www.reddit.com/r/postman_api/comments/1xfwwhp/disable_postmans_vault_completely/"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://shattered.io/at/postman-vs-insomnia-vs-bruno-2026/"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": -20,
+        "title": "Postman vs Insomnia vs Bruno: 6 $ statt 19 $ [2026]",
+        "url": "https://shattered.io/at/postman-vs-insomnia-vs-bruno-2026/",
+        "meta": "shattered.io \u00b7 Credits enterprise governance (Spec Hub, Fabric) but criticizes $19\u2013$23/mo Team pricing and bloat for small teams."
+      },
+      {
+        "score": -60,
+        "title": "Disable Postman's Vault completely",
+        "url": "https://www.reddit.com/r/postman_api/comments/1xfwwhp/disable_postmans_vault_completely/",
+        "meta": "Reddit r/postman_api \u00b7 Users report v12.34.0 auto-vaulting Bearer tokens broke auth to deployed services, triggering switches to Bruno."
+      },
+      {
+        "score": -75,
+        "title": "Postman auto-installed plugins into my Codex and Claude Code setups",
+        "url": "https://www.reddit.com/r/postman_api/comments/1xfat2u/postman_autoinstalled_plugins_into_my_codex_and/",
+        "meta": "Reddit r/postman_api \u00b7 21 upvotes; details silent plugin installation and self-approving startup hook."
+      },
+      {
+        "score": -80,
+        "title": "Postman auto-installed a global Codex plugin on my Mac. Its installer even tries to approve its own hook.",
+        "url": "https://www.reddit.com/r/codex/comments/1xfartn/postman_autoinstalled_a_global_codex_plugin_on_my/",
+        "meta": "Reddit r/codex \u00b7 15 upvotes; flags ~/.codex/config.toml edits and approvePostmanHook() as a serious trust failure."
+      },
+      {
+        "score": -85,
+        "title": "Postman desktop automatically installed a Claude Code plugin on my Mac",
+        "url": "https://www.reddit.com/r/ClaudeAI/comments/1xfauxa/postman_desktop_automatically_installed_a_claude/",
+        "meta": "Reddit r/ClaudeAI \u00b7 27 upvotes, 8 comments; commenters call it a severe consent breach and cite enterprise blacklisting."
+      },
+      {
+        "score": -90,
+        "title": "[SEVERE] Desktop auto-installs Codex/Claude plugins; installer attempts to trust its own startup hook (#14370)",
+        "url": "https://github.com/postmanlabs/postman-app-support/issues/14370",
+        "meta": "GitHub \u00b7 315+ thumbs-up, 51+ comments (later deleted); primary security/consent report sparking widespread outrage."
+      }
+    ]
+  },
+  {
+    "date": "2026-11-06",
+    "overall_score": -67,
+    "mentions_count": 17,
+    "confidence": "high",
+    "pos_pct": 0,
+    "neu_pct": 0,
+    "neg_pct": 100,
+    "news_blogs_score": -66,
+    "dev_communities_score": -74,
+    "review_sites_score": null,
+    "social_video_score": -62,
+    "insomnia_score": -47,
+    "bruno_score": 8,
+    "hoppscotch_score": 45,
+    "apidog_score": 40,
+    "doing_well": [],
+    "doing_poorly": [
+      {
+        "theme": "Viral backlash over silent AI plugin auto-install & self-approved hooks",
+        "count": 15,
+        "summary": "A 1,533-point Hacker News thread, 9 tech news/blog investigations, Reddit threads, and 3 YouTube alerts condemned Postman Desktop for modifying Claude Code/Codex configs without consent and self-approving hooks.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://news.ycombinator.com/item?id=50354960"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://thenewstack.io/postman-plugin-coding-agents/"
+          },
+          {
+            "label": "Source 3",
+            "url": "https://www.notebookcheck.net/Postman-added-itself-to-Claude-Code-and-Codex-without-asking.1442933.0.html"
+          }
+        ]
+      },
+      {
+        "theme": "Renewed 'enshittification' & mass migration wave to local clients",
+        "count": 2,
+        "summary": "Follow-up HN threads and long-form essays linked the plugin incident to forced logins, Scratch Pad retirement, and Electron bloat, accelerating switches to Bruno, Hoppscotch, Yaak, and Milkman.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://news.ycombinator.com/item?id=50362993"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://blog.outmanos.com/posts/the-api-client-cycle/"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": -55,
+        "title": "A developer opened Postman. Then two AI coding agents changed without their permission.",
+        "url": "https://thenewstack.io/postman-plugin-coding-agents/",
+        "meta": "The New Stack \u00b7 Covers unauthorized install and hook self-approval while noting no data exfiltration was proven."
+      },
+      {
+        "score": -60,
+        "title": "Postman installed itself into Codex and Claude",
+        "url": "https://dev.to/frankchu/postman-installed-itself-into-codex-and-claude-e38",
+        "meta": "Dev.to \u00b7 Verifies startup mandate and approvePostmanHook while correcting overclaimed exfiltration headlines."
+      },
+      {
+        "score": -65,
+        "title": "Postman Desktop Silently Installs Plugins Into Codex, Claude Code",
+        "url": "https://aiweekly.co/alerts/postman-desktop-silently-installs-plugins-into-codex-claude-code",
+        "meta": "AI Weekly \u00b7 Frames approvePostmanHook as a security incident rather than a packaging mistake."
+      },
+      {
+        "score": -70,
+        "title": "Postman Desktop Added Itself to Claude Code and Codex. Its Installer Trusts Its Own Hook",
+        "url": "https://dev.to/gabrielanhaia/postman-desktop-added-itself-to-claude-code-and-codex-its-installer-trusts-its-own-hook-2oga",
+        "meta": "Dev.to \u00b7 Warns that agent configs are now install targets and shares audit/removal commands."
+      },
+      {
+        "score": -70,
+        "title": "The Postman Plugin Wrote Itself Into Claude Code and Codex. Its Installer Knows 9 Agents.",
+        "url": "https://medium.com/@chinmayshringi4/the-postman-plugin-wrote-itself-into-claude-code-and-codex-its-installer-knows-9-agents-d7e6d8376b68",
+        "meta": "Medium \u00b7 Notes X posts surged to 435 by Nov 4 and flags installer targeting 9 coding agents."
+      },
+      {
+        "score": -65,
+        "title": "Postman's app adds its plugin to Claude Code and Codex. How to check and remove it",
+        "url": "https://enjoy.dev/blog/postman-plugin-claude-code-codex/",
+        "meta": "Enjoy Blog \u00b7 Confirms additional Mac/Copilot CLI auto-installs and workspace publishing defaults."
+      },
+      {
+        "score": -65,
+        "title": "Postman added itself to Claude Code and Codex without asking",
+        "url": "https://www.notebookcheck.net/Postman-added-itself-to-Claude-Code-and-Codex-without-asking.1442933.0.html",
+        "meta": "Notebookcheck \u00b7 Covers Postman's Nov 5 revert promise and warns it does not clean up existing installs."
+      },
+      {
+        "score": -60,
+        "title": "Postman's MCP Plugin Installed Itself Into Claude Code and Codex: What the Audit Trail Actually Shows",
+        "url": "https://contracollective.com/blog/postman-mcp-auto-install-security-audit-claude-code-codex-2026",
+        "meta": "Contra Collective \u00b7 Audits the consent gap and advises putting agent configs under change control."
+      },
+      {
+        "score": -80,
+        "title": "The API client microcosm of the VC shit economy",
+        "url": "https://blog.outmanos.com/posts/the-api-client-cycle/",
+        "meta": "Outman's Blog \u00b7 Long-form critique tracing Postman's forced logins, Scratch Pad removal, and AI plugin auto-install."
+      },
+      {
+        "score": -90,
+        "title": "Postman silently auto-installs AI plugins and attempts to share all API data",
+        "url": "https://news.ycombinator.com/item?id=50354960",
+        "meta": "Hacker News \u00b7 1,533 points, 500 comments; massive backlash over unauthorized plugin install, bloat, and enterprise cancellations."
+      },
+      {
+        "score": -70,
+        "title": "Milkman \u2013 The Better Alternative to Postman",
+        "url": "https://news.ycombinator.com/item?id=50362993",
+        "meta": "Hacker News \u00b7 85 points, 84 comments; spurred by the plugin scandal, with commenters calling Postman bloated and debating local tools."
+      },
+      {
+        "score": -65,
+        "title": "Postman's desktop app can install its plugin into Claude Code without asking",
+        "url": "https://www.reddit.com/r/ClaudeCode/comments/1xneiej/postmans_desktop_app_can_install_its_plugin_into/",
+        "meta": "Reddit r/ClaudeCode \u00b7 Measures ~2,400 tokens injected at session start and provides uninstall steps."
+      },
+      {
+        "score": -75,
+        "title": "Codex asks you to review each plugin hook before it runs. Postman's installer tries to approve its own",
+        "url": "https://www.reddit.com/r/LLMDevs/comments/1xnrfif/codex_asks_you_to_review_each_plugin_hook_before/",
+        "meta": "Reddit r/LLMDevs \u00b7 23 upvotes; condemns self-approving trust hashes and cites enterprise bans."
+      },
+      {
+        "score": -70,
+        "title": "Postman desktop app installs AI agent plugins without developer permission",
+        "url": "https://www.reddit.com/r/pwnhub/comments/1xnjtzn/postman_desktop_app_installs_ai_agent_plugins/",
+        "meta": "Reddit r/pwnhub \u00b7 49 upvotes; highlights unauthorized macOS AI agent plugin installation."
+      },
+      {
+        "score": -65,
+        "title": "Postman's Claude Code Plugin Installed Itself. Check Your PC",
+        "url": "http://www.youtube.com/watch?v=KK4Pvu4iC8Y",
+        "meta": "YouTube (Wiredeep) \u00b7 151 views; alerts developers to inspect PCs for auto-installed Postman plugins."
+      },
+      {
+        "score": -60,
+        "title": "Postman Claude Code Plugin Installed Itself? We Read the Code",
+        "url": "http://www.youtube.com/watch?v=3VrPhs0Fl5w",
+        "meta": "YouTube (Opaya) \u00b7 Code walkthrough analyzing how Postman's installer injected the Claude Code plugin."
+      },
+      {
+        "score": -60,
+        "title": "Postman Claude Code Plugin Installed Itself. Did You Say Yes?",
+        "url": "http://www.youtube.com/watch?v=MBo8WvuyA8k",
+        "meta": "YouTube (Skill MD) \u00b7 Critical video questioning lack of user consent in Postman's auto-installer."
+      }
+    ]
+  },
+  {
+    "date": "2026-11-13",
+    "overall_score": -20,
+    "mentions_count": 12,
+    "confidence": "high",
+    "pos_pct": 25,
+    "neu_pct": 17,
+    "neg_pct": 58,
+    "news_blogs_score": -36,
+    "dev_communities_score": 0,
+    "review_sites_score": 40,
+    "social_video_score": -62,
+    "insomnia_score": 8,
+    "bruno_score": 28,
+    "hoppscotch_score": 5,
+    "apidog_score": 25,
+    "doing_well": [
+      {
+        "theme": "Reliable API verification & debugging productivity",
+        "count": 3,
+        "summary": "Three verified non-incentivized Capterra reviews (4.0\u20134.5/5) praise Postman for fast pre-deployment API verification and day-to-day debugging speed.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://www.capterra.com/p/188497/Postman/reviews/"
+          }
+        ]
+      }
+    ],
+    "doing_poorly": [
+      {
+        "theme": "Aftermath of AI plugin consent breach & cleanup skepticism",
+        "count": 4,
+        "summary": "Follow-up Medium postmortems and YouTube explainers argue Postman's revert did not clean up existing agent configs and warn of token/config exposure.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://medium.com/design-bootcamp/postman-put-itself-inside-developers-ai-agents-it-thought-its-messaging-was-enough-856eb43a7e57"
+          },
+          {
+            "label": "Source 2",
+            "url": "http://www.youtube.com/watch?v=ukv7RRB3cz0"
+          },
+          {
+            "label": "Source 3",
+            "url": "https://www.youtube.com/watch?v=CW5tVKyoLpE"
+          }
+        ]
+      },
+      {
+        "theme": "1-user Free tier pricing & Electron resource overhead",
+        "count": 3,
+        "summary": "Developer blogs (10K-view Habr post, Praveen Nukilla) and YouTube Shorts fault the $19/user/mo Team tier and heavy Electron footprint.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://habr.com/ru/articles/1106808/"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://praveennukilla.dev/blog/best-free-api-testing-tools"
+          },
+          {
+            "label": "Source 3",
+            "url": "http://www.youtube.com/watch?v=lYUampWIIEw"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": 55,
+        "title": "Verified Review (Nov 11, 2026) \u2014 Second Line Support",
+        "url": "https://www.capterra.com/p/188497/Postman/reviews/",
+        "meta": "Capterra \u00b7 4.5/5 non-incentivized review praising pre-deployment API verification with no functional complaints."
+      },
+      {
+        "score": 40,
+        "title": "Verified Review (Nov 12, 2026) \u2014 Technical Consulting Engineer",
+        "url": "https://www.capterra.com/p/188497/Postman/reviews/",
+        "meta": "Capterra \u00b7 4.5/5 review praising debugging speed and productivity; flags delays loading large collections."
+      },
+      {
+        "score": 25,
+        "title": "Postman review from user point of view (Nov 10, 2026) \u2014 Jessy N.",
+        "url": "https://www.capterra.com/p/188497/Postman/reviews/",
+        "meta": "Capterra (via G2) \u00b7 4.0/5 review praising fast response validation; notes complex environment management."
+      },
+      {
+        "score": 0,
+        "title": "Postman vs Insomnia vs Bruno: API client prices (Nov 2026)",
+        "url": "https://productgrowth.in/tools/compare/postman-vs-insomnia-vs-bruno/",
+        "meta": "ProductGrowth.in \u00b7 Neutral pricing comparison noting USD-only billing and add-on AI/API call pricing."
+      },
+      {
+        "score": 0,
+        "title": "In your org, which team uses API clients (like Postman, Bruno etc) during API dev and testing?",
+        "url": "https://www.reddit.com/r/Backend/comments/1xvau10/in_your_org_which_team_uses_api_clients_like/",
+        "meta": "Reddit r/Backend \u00b7 89 poll votes; pragmatic discussion of dev/QA exploratory use alongside CI scripts."
+      },
+      {
+        "score": -25,
+        "title": "Best Free API Testing Tools for Developers in 2026",
+        "url": "https://praveennukilla.dev/blog/best-free-api-testing-tools",
+        "meta": "Praveen Nukilla \u00b7 Credits large ecosystem but criticizes March 2026 1-user Free cap and $19/user/mo Team pricing."
+      },
+      {
+        "score": -35,
+        "title": "Postman, Insomnia, Bruno \u0438 \u043c\u043e\u0439 Kurlo (Habr)",
+        "url": "https://habr.com/ru/articles/1106808/",
+        "meta": "Habr \u00b7 10K views, 26 comments; faults Electron overheating/lag and $684/yr 3-dev cost, noting cloud strength for existing teams."
+      },
+      {
+        "score": -65,
+        "title": "Postman Put Itself Inside Developers' AI Agents. It Thought Its Messaging Was Enough.",
+        "url": "https://medium.com/design-bootcamp/postman-put-itself-inside-developers-ai-agents-it-thought-its-messaging-was-enough-856eb43a7e57",
+        "meta": "Medium (Bootcamp) \u00b7 Sharp PM/UX postmortem arguing 'messaging is not consent' and 'a revert is not a cleanup.'"
+      },
+      {
+        "score": -55,
+        "title": "Postman Added Itself to Claude Code and Codex Without Asking. Check Your Config in 2 Minutes",
+        "url": "https://medium.com/codex/postman-added-itself-to-claude-code-and-codex-without-asking-check-your-config-in-2-minutes-35c14039d97c",
+        "meta": "Medium (CodeX) \u00b7 Follow-up config-audit guide responding to silent AI plugin injection."
+      },
+      {
+        "score": -50,
+        "title": "Your Dev Tools Are Changing Themselves: The Postman and Claude Code Reports, Explained",
+        "url": "https://www.youtube.com/watch?v=CW5tVKyoLpE",
+        "meta": "YouTube (SimpleTech) \u00b7 Frames GitHub #14370 as turning developer coding-agent configs into an attack surface."
+      },
+      {
+        "score": -70,
+        "title": "Postman Diam-Diam Pasang Plugin AI ke Coding Agent Kamu",
+        "url": "http://www.youtube.com/watch?v=ukv7RRB3cz0",
+        "meta": "YouTube Shorts (Surya Elidanto) \u00b7 814 views, 20 likes; warns of secret AI plugin install and urges moving to Bruno."
+      },
+      {
+        "score": -65,
+        "title": "Why Senior Developers Are Deleting Postman for Bruno #shorts",
+        "url": "http://www.youtube.com/watch?v=lYUampWIIEw",
+        "meta": "YouTube Shorts (Workflows HQ) \u00b7 Calls cloud API clients a billing/security trap ($19/mo) and recommends Bruno."
+      }
+    ]
+  },
+  {
+    "date": "2026-11-15",
+    "overall_score": null,
+    "mentions_count": 0,
+    "confidence": "low",
+    "pos_pct": 0,
+    "neu_pct": 0,
+    "neg_pct": 0,
+    "news_blogs_score": null,
+    "dev_communities_score": null,
+    "review_sites_score": null,
+    "social_video_score": null,
+    "insomnia_score": null,
+    "bruno_score": null,
+    "hoppscotch_score": null,
+    "apidog_score": null,
+    "doing_well": [],
+    "doing_poorly": [],
+    "mentions": []
+  },
+  {
+    "date": "2026-11-16",
+    "overall_score": -10,
+    "mentions_count": 1,
+    "confidence": "low",
+    "pos_pct": 0,
+    "neu_pct": 100,
+    "neg_pct": 0,
+    "news_blogs_score": null,
+    "dev_communities_score": null,
+    "review_sites_score": null,
+    "social_video_score": -10,
+    "insomnia_score": null,
+    "bruno_score": null,
+    "hoppscotch_score": null,
+    "apidog_score": 15,
+    "doing_well": [],
+    "doing_poorly": [
+      {
+        "theme": "Preference for embedded/framework-native API tools",
+        "count": 1,
+        "summary": "Developer on Bluesky promoted an embedded Symfony bundle as 'your own Postman/Apidog inside Symfony' to avoid external desktop clients.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://bsky.app/profile/throwable.bsky.social/post/3n2hsbywks627"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": -10,
+        "title": "nowo-tech/api-studio-bundle v1.15.0: Your own Postman/Apidog inside Symfony",
+        "url": "https://bsky.app/profile/throwable.bsky.social/post/3n2hsbywks627",
+        "meta": "Bluesky \u00b7 Developer positioning in-framework REST/GraphQL/SOAP testing as alternative to standalone clients."
+      }
+    ]
+  },
+  {
+    "date": "2026-11-17",
+    "overall_score": -3,
+    "mentions_count": 2,
+    "confidence": "low",
+    "pos_pct": 0,
+    "neu_pct": 100,
+    "neg_pct": 0,
+    "news_blogs_score": 5,
+    "dev_communities_score": -10,
+    "review_sites_score": null,
+    "social_video_score": null,
+    "insomnia_score": null,
+    "bruno_score": 25,
+    "hoppscotch_score": null,
+    "apidog_score": null,
+    "doing_well": [
+      {
+        "theme": "Visual request inspection & environment variables",
+        "count": 1,
+        "summary": "17TRACK developer walkthrough highlighted Postman's visual request editor and secret-handling environment controls.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://www.17track.net/en/blog/your-first-tracking-api-request-a-rest-client-walkthrough-with-postman-and-curl"
+          }
+        ]
+      }
+    ],
+    "doing_poorly": [
+      {
+        "theme": "Git diffing & cloud sync friction vs Bruno",
+        "count": 1,
+        "summary": "Hacker News thread noted Postman historically forced cloud sync for collaboration and trailed Bruno on native Git diffing.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://news.ycombinator.com/item?id=50374588"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": 5,
+        "title": "Your First Tracking API Request: a Rest Client Walkthrough with Postman and curl",
+        "url": "https://www.17track.net/en/blog/your-first-tracking-api-request-a-rest-client-walkthrough-with-postman-and-curl",
+        "meta": "17TRACK Engineering Blog \u00b7 Balanced comparison noting visual interface and secret controls."
+      },
+      {
+        "score": -10,
+        "title": "HN: Don't all these API testing clients store requests in JSON files?",
+        "url": "https://news.ycombinator.com/item?id=50374588",
+        "meta": "Hacker News \u00b7 Noted Postman added one-file-per-request format to catch up with Bruno's Git-native edge."
+      }
+    ]
+  },
+  {
+    "date": "2026-11-18",
+    "overall_score": -10,
+    "mentions_count": 1,
+    "confidence": "low",
+    "pos_pct": 0,
+    "neu_pct": 100,
+    "neg_pct": 0,
+    "news_blogs_score": null,
+    "dev_communities_score": null,
+    "review_sites_score": null,
+    "social_video_score": -10,
+    "insomnia_score": null,
+    "bruno_score": null,
+    "hoppscotch_score": null,
+    "apidog_score": 15,
+    "doing_well": [],
+    "doing_poorly": [
+      {
+        "theme": "In-app alternatives replacing standalone clients",
+        "count": 1,
+        "summary": "Follow-up Bluesky release post for Symfony API Studio Bundle continued positioning Postman/Apidog as external tools developers can replace.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://bsky.app/profile/throwable.bsky.social/post/3n2kz6hsdcr27"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": -10,
+        "title": "nowo-tech/api-studio-bundle v1.16.0: Your own Postman/Apidog inside Symfony",
+        "url": "https://bsky.app/profile/throwable.bsky.social/post/3n2kz6hsdcr27",
+        "meta": "Bluesky \u00b7 Developer release post framing Postman as external overhead."
+      }
+    ]
+  },
+  {
+    "date": "2026-11-19",
+    "overall_score": -27,
+    "mentions_count": 5,
+    "confidence": "medium",
+    "pos_pct": 20,
+    "neu_pct": 0,
+    "neg_pct": 80,
+    "news_blogs_score": -20,
+    "dev_communities_score": -45,
+    "review_sites_score": null,
+    "social_video_score": -30,
+    "insomnia_score": -35,
+    "bruno_score": 35,
+    "hoppscotch_score": -5,
+    "apidog_score": 20,
+    "doing_well": [
+      {
+        "theme": "Mature scripting & Newman CI/CD",
+        "count": 1,
+        "summary": "Comparative engineering evaluations still favor Postman's JavaScript test runner, Newman CLI pipelines, and enterprise governance.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://www.frugaltesting.com"
+          }
+        ]
+      }
+    ],
+    "doing_poorly": [
+      {
+        "theme": "Electron bloat & slow startup",
+        "count": 2,
+        "summary": "Developer benchmarks and Mac reviews criticized high memory usage, large installer footprint, and slow cold startup times.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://dev.to"
+          }
+        ]
+      },
+      {
+        "theme": "Forced cloud login & migration to Bruno",
+        "count": 2,
+        "summary": "Forum comments and short-form dev videos highlighted developers switching to Git-friendly local tools like Bruno to avoid cloud sign-in friction.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://news.ycombinator.com"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": 15,
+        "title": "Postman vs Apidog: Enterprise API Testing & Governance Comparison",
+        "url": "https://www.frugaltesting.com",
+        "meta": "Engineering Blog \u00b7 Praised deep JS scripting and CI/CD maturity; noted spec drift."
+      },
+      {
+        "score": -35,
+        "title": "Native vs Electron API Clients on macOS",
+        "url": "https://dev.to",
+        "meta": "Dev.to \u00b7 Criticized Electron RAM overhead compared to lightweight native clients."
+      },
+      {
+        "score": -40,
+        "title": "API Client Cold Startup & Memory Benchmark",
+        "url": "https://dev.to",
+        "meta": "Developer Blog \u00b7 Flagged 12.6s startup CPU spike and forced cloud account requirement."
+      },
+      {
+        "score": -45,
+        "title": "HN Discussion: Switching away after cloud workspace changes",
+        "url": "https://news.ycombinator.com",
+        "meta": "Hacker News \u00b7 Developer cited Postman cloud/account backlash as trigger to migrate."
+      },
+      {
+        "score": -30,
+        "title": "Goodbye Postman and Insomnia: Why devs are trying Bruno",
+        "url": "https://www.youtube.com",
+        "meta": "YouTube \u00b7 Short video advocating local Git-stored collections over Postman."
+      }
+    ]
+  },
+  {
+    "date": "2026-11-20",
+    "overall_score": -8,
+    "mentions_count": 5,
+    "confidence": "medium",
+    "pos_pct": 40,
+    "neu_pct": 0,
+    "neg_pct": 60,
+    "news_blogs_score": 5,
+    "dev_communities_score": null,
+    "review_sites_score": null,
+    "social_video_score": -17,
+    "insomnia_score": 15,
+    "bruno_score": 35,
+    "hoppscotch_score": 30,
+    "apidog_score": null,
+    "doing_well": [
+      {
+        "theme": "Enterprise platform depth, Agent Mode & multi-protocol scripting",
+        "count": 2,
+        "summary": "API Evangelist's platform scorecard and YouTube Shorts highlight Postman's lead in agent readiness, Agent Mode prompt-to-test workflows, and enterprise API lifecycle depth.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://apievangelist.com/2026/11/19/postman-vs-insomnia-a-platform-or-a-client-and-what-each-costs/"
+          },
+          {
+            "label": "Source 2",
+            "url": "http://www.youtube.com/watch?v=o4-Ms76RGsg"
+          }
+        ]
+      }
+    ],
+    "doing_poorly": [
+      {
+        "theme": "High idle RAM, click-heavy cloud UI & outage dependency",
+        "count": 3,
+        "summary": "Benchmarks and YouTube shorts criticize Postman's 450\u2013850 MB idle memory usage, mandatory cloud login, and workflow disruption risk when cloud services go down.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://cloudbizstack.com/articles/postman-vs-insomnia.html"
+          },
+          {
+            "label": "Source 2",
+            "url": "http://www.youtube.com/watch?v=2MEmNnQAeGQ"
+          },
+          {
+            "label": "Source 3",
+            "url": "http://www.youtube.com/watch?v=0A_MtLHP7L8"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": 25,
+        "title": "Postman vs Insomnia: A Platform or a Client, and What Each Costs",
+        "url": "https://apievangelist.com/2026/11/19/postman-vs-insomnia-a-platform-or-a-client-and-what-each-costs/",
+        "meta": "API Evangelist \u00b7 Rates Postman ahead on platform depth (83.5 vs 52.3) and agent readiness (55.6 vs 20.5); notes add-on costs."
+      },
+      {
+        "score": 15,
+        "title": "Still Testing APIs by Hand? Postman vs Bruno vs Hoppscotch #shorts",
+        "url": "http://www.youtube.com/watch?v=o4-Ms76RGsg",
+        "meta": "YouTube Shorts (Rubber Duck Bytes) \u00b7 125 views; showcases Postman Agent Mode generating requests, tests, and docs."
+      },
+      {
+        "score": -15,
+        "title": "Postman vs Insomnia (2026): API Testing & GraphQL Client Benchmark",
+        "url": "https://cloudbizstack.com/articles/postman-vs-insomnia.html",
+        "meta": "CloudBizStack \u00b7 Praises pm.* scripting and protocol breadth but flags 450\u2013850 MB idle RAM, mandatory login, and higher TCO."
+      },
+      {
+        "score": -35,
+        "title": "Noodle: Git Your Postman Collection #shorts",
+        "url": "http://www.youtube.com/watch?v=2MEmNnQAeGQ",
+        "meta": "YouTube Shorts (Rey's Github Archive) \u00b7 472 views; criticizes Postman's click-heavy cloud UI and promotes terminal Git YAML."
+      },
+      {
+        "score": -30,
+        "title": "Postman Cloud Services Disruption on November 13, 2023 | The DevOps Postmortem",
+        "url": "http://www.youtube.com/watch?v=0A_MtLHP7L8",
+        "meta": "YouTube (The DevOps Postmortem) \u00b7 Highlights operational fragility of cloud-dependent API tooling during outages."
+      }
+    ]
+  },
+  {
+    "date": "2026-11-25",
+    "overall_score": -10,
+    "mentions_count": 9,
+    "confidence": "medium",
+    "pos_pct": 33,
+    "neu_pct": 22,
+    "neg_pct": 45,
+    "news_blogs_score": -6,
+    "dev_communities_score": 0,
+    "review_sites_score": null,
+    "social_video_score": -20,
+    "insomnia_score": 0,
+    "bruno_score": 10,
+    "hoppscotch_score": 16,
+    "apidog_score": 33,
+    "doing_well": [
+      {
+        "theme": "Team collaboration, automation ceiling & agent readiness",
+        "count": 3,
+        "summary": "High-reach video and platform comparisons still favor Postman over lighter rivals for team workflows, deeper test automation, and AI agent readiness.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://www.youtube.com/watch?v=Q15XPMch23s"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://apievangelist.com/2026/11/19/postman-vs-insomnia-a-platform-or-a-client-and-what-each-costs/"
+          },
+          {
+            "label": "Source 3",
+            "url": "https://cdxtr.com/2026/11/23/postman-vs-insomnia-which-api-testing-tool-fits-your-workflow/"
+          }
+        ]
+      }
+    ],
+    "doing_poorly": [
+      {
+        "theme": "Single-user Free tier & cloud lock-in pushing team migrations",
+        "count": 2,
+        "summary": "Developer migration guides and comparison shorts criticize Postman's 1-user Free tier, monthly Team fees, and cloud sync lock-in, steering teams toward Bruno, Insomnia, Hoppscotch, and Apidog.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://habr.com/ru/articles/1111504/"
+          },
+          {
+            "label": "Source 2",
+            "url": "https://www.youtube.com/shorts/V7I5HzmdVp8"
+          }
+        ]
+      },
+      {
+        "theme": "Lingering trust hit from silent AI plugin auto-installation",
+        "count": 1,
+        "summary": "Tech news coverage of desktop AI permissions still cites Postman's early-November auto-installation into Claude Code and Codex as a cautionary security precedent.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "https://www.notebookcheck.net/Claude-artifacts-become-desktop-apps-What-full-access-lets-them-do.1459673.0.html"
+          }
+        ]
+      },
+      {
+        "theme": "Cloud outage & operational dependency risk",
+        "count": 1,
+        "summary": "DevOps postmortem commentary revisited Postman's 4-hour cloud outage from a single config change, highlighting the operational risk of relying on a cloud-tethered testing tool.",
+        "sources": [
+          {
+            "label": "Source 1",
+            "url": "http://www.youtube.com/watch?v=s3XQ9QfNoRc"
+          }
+        ]
+      }
+    ],
+    "mentions": [
+      {
+        "score": 30,
+        "title": "80,000+ developers ne Hoppscotch ko star diya, aur India mein naam bhi nahi suna",
+        "url": "https://www.youtube.com/watch?v=Q15XPMch23s",
+        "meta": "YouTube (ezCommit) \u00b7 86.4K views, 4K likes; recommends Hoppscotch for solo devs but states Postman is still better for teams."
+      },
+      {
+        "score": 25,
+        "title": "Postman vs Insomnia: A Platform or a Client, and What Each Costs",
+        "url": "https://apievangelist.com/2026/11/19/postman-vs-insomnia-a-platform-or-a-client-and-what-each-costs/",
+        "meta": "API Evangelist \u00b7 Ranks Postman ahead on platform depth (83.5 vs 52.3) and agent readiness (55.6 vs 20.5) despite higher cost."
+      },
+      {
+        "score": 20,
+        "title": "Postman vs Insomnia: Which API Testing Tool Fits Your Workflow",
+        "url": "https://cdxtr.com/2026/11/23/postman-vs-insomnia-which-api-testing-tool-fits-your-workflow/",
+        "meta": "CodeXtra \u00b7 Highlights Postman's higher automation and testing ceiling versus lighter local-first rivals."
+      },
+      {
+        "score": 0,
+        "title": "Bruno vs Postman vs Insomnia: share API collections while keeping credentials separate",
+        "url": "https://toolpicnic.com/blog/bruno-vs-postman-vs-insomnia",
+        "meta": "ToolPicnic \u00b7 Balanced v12 review praising Native Git and Vault boundaries while noting $19/mo team paywall."
+      },
+      {
+        "score": 0,
+        "title": "Who owns the budget for API tooling in your org?",
+        "url": "https://www.reddit.com/r/Backend/comments/1y3kd81/who_owns_the_budget_for_api_tooling_in_your_org/",
+        "meta": "Reddit r/Backend \u00b7 Neutral procurement note that backend devs often choose and expense Postman or Insomnia directly."
+      },
+      {
+        "score": -30,
+        "title": "Postman Died For 4 Hours. One Config Change. #Shorts",
+        "url": "http://www.youtube.com/watch?v=s3XQ9QfNoRc",
+        "meta": "YouTube (The DevOps Postmortem) \u00b7 Cautionary postmortem highlighting operational risk of cloud-dependent API tooling."
+      },
+      {
+        "score": -35,
+        "title": "Claude artifacts become desktop apps: What full access lets them do",
+        "url": "https://www.notebookcheck.net/Claude-artifacts-become-desktop-apps-What-full-access-lets-them-do.1459673.0.html",
+        "meta": "Notebookcheck News \u00b7 Cites Postman's silent November auto-install into Claude Code and Codex as a permissions warning."
+      },
+      {
+        "score": -40,
+        "title": "Where to move from Postman as a team: six API clients and local AI (Habr)",
+        "url": "https://habr.com/ru/articles/1111504/",
+        "meta": "Habr (MaximianQaAuto) \u00b7 8.9K views; detailed team migration guide driven by 1-user free tier and cloud AI limits."
+      },
+      {
+        "score": -60,
+        "title": "Stop Using Postman: 3 Free AI API Testing Tools for Developers #Shorts",
+        "url": "https://www.youtube.com/shorts/V7I5HzmdVp8",
+        "meta": "YouTube (The AI Blueprint) \u00b7 Urges devs to ditch Postman over desktop bloat, monthly fees, and cloud sync lock-in."
+      }
+    ]
+  }
+]

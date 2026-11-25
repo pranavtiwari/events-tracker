@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Postman Pulse — The Primegraph Chronicle</title>
+  <meta name="description" content="Developer market intelligence and organic sentiment tracker for Postman vs Insomnia, Bruno, Hoppscotch, and Apidog, live-synced from the Postman Pulse History sheet." />
+  <meta name="theme-color" content="#b5381b" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Playfair+Display:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="newspaper.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="newspaper-body">
+  <!-- Top Utility Bar -->
+  <div class="np-utility-bar">
+    <div class="np-utility-inner">
+      <div class="np-utility-left">
+        <span id="npSyncPill" class="np-sync-pill is-loading">
+          <span class="np-sync-dot"></span>
+          <span id="npSyncText">Syncing live sheet…</span>
+        </span>
+        <span id="npLastSynced" class="np-dateline-text"></span>
+      </div>
+      <div class="np-utility-right">
+        <button id="npRefreshBtn" class="np-btn-subtle" type="button" title="Fetch latest data from Postman Pulse History sheet">
+          <svg class="np-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+          <span>Refresh</span>
+        </button>
+        <a class="np-btn-subtle" href="https://docs.google.com/spreadsheets/d/1UjgqkNUpbaKR4rJoFtGwblOtlH7VqoKVMCM7YE4wnvQ/edit" target="_blank" rel="noopener noreferrer">
+          <span>Open Sheet</span>
+          <svg class="np-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compact Masthead -->
+  <header class="np-masthead np-masthead-compact">
+    <div class="np-masthead-grid">
+      <div class="np-ear">
+        <strong>Bengaluru Edition</strong>
+        <span id="npEditionDate"></span>
+      </div>
+      <div class="np-nameplate">
+        <a href="index.html">
+          <div class="np-title">The Primegraph Chronicle</div>
+        </a>
+      </div>
+      <div class="np-ear np-ear-right">
+        <strong>Section 06</strong>
+        <span>Developer Market Intelligence</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Double-Rule Sticky Navigation -->
+  <div class="np-nav-wrap">
+    <div class="np-nav-inner">
+      <nav class="np-nav" aria-label="Newspaper sections">
+        <a class="np-nav-link" href="index.html">Front Page</a>
+        <span class="np-nav-sep" aria-hidden="true">·</span>
+        <a class="np-nav-link" href="biscope.html">Biscope</a>
+        <span class="np-nav-sep" aria-hidden="true">·</span>
+        <a class="np-nav-link" href="portfolio.html">Portfolio</a>
+        <span class="np-nav-sep" aria-hidden="true">·</span>
+        <a class="np-nav-link" href="ai-research.html">AI Research</a>
+        <span class="np-nav-sep" aria-hidden="true">·</span>
+        <a class="np-nav-link" href="health.html">Health &amp; Longevity</a>
+        <span class="np-nav-sep" aria-hidden="true">·</span>
+        <a class="np-nav-link" href="events.html">Bengaluru Events</a>
+        <span class="np-nav-sep" aria-hidden="true">·</span>
+        <a class="np-nav-link active" href="postman-pulse.html" aria-current="page">Postman Pulse</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Postman Pulse Broadsheet Content -->
+  <main class="np-main bs-page">
+    <!-- Section Header + Day Picker -->
+    <section class="desk-header">
+      <div class="desk-header-main">
+        <span class="np-kicker">Developer Market Intelligence · Live Sheet</span>
+        <h1 class="desk-title">Postman Pulse</h1>
+        <p class="desk-subtitle" id="report-subtitle">Loading latest developer sentiment report…</p>
+      </div>
+      <div class="desk-actions">
+        <div class="pp-day-picker">
+          <label for="day-select">Edition Date</label>
+          <select id="day-select" aria-label="Select report date"></select>
+        </div>
+        <a class="np-btn-subtle" href="index.html">← Front Page</a>
+      </div>
+    </section>
+
+    <!-- Row 1: Sentiment Score & Mix of Mentions (2-Column Broadsheet Split) -->
+    <section class="bs-split-even pp-top-split" aria-label="Sentiment overview">
+      <div class="bs-col">
+        <span class="np-kicker">Sentiment Score</span>
+        <div class="pp-score-hero">
+          <span class="pp-score-value" id="overall-score">—</span>
+          <span class="pp-score-denom" id="overall-denom">/ 100</span>
+        </div>
+        <div class="pp-badges-row" id="score-badges"></div>
+      </div>
+
+      <div class="bs-col">
+        <span class="np-kicker">Mix of Mentions</span>
+        <div class="pp-stacked-bar" id="mix-bar">
+          <div class="pp-bar-seg pos" id="bar-pos" style="width: 0%"></div>
+          <div class="pp-bar-seg neu" id="bar-neu" style="width: 0%"></div>
+          <div class="pp-bar-seg neg" id="bar-neg" style="width: 0%"></div>
+        </div>
+        <div class="pp-mix-legend" id="mix-legend"></div>
+        <div class="pp-channel-grid" id="channel-breakdown"></div>
+      </div>
+    </section>
+
+    <!-- Row 2: Trend Chart -->
+    <div class="bs-section-banner">
+      <h2 class="bs-section-title">Historical Sentiment Trend</h2>
+      <div class="desk-pills" id="trend-filters" role="tablist" aria-label="Trend view filter">
+        <button type="button" class="desk-pill active" data-series="overall">Overall</button>
+        <button type="button" class="desk-pill" data-series="news_blogs">News &amp; blogs</button>
+        <button type="button" class="desk-pill" data-series="dev_communities">Dev communities</button>
+        <button type="button" class="desk-pill" data-series="review_sites">Review sites</button>
+        <button type="button" class="desk-pill" data-series="social_video">Social &amp; video</button>
+        <button type="button" class="desk-pill" data-series="competitors">Compare competitors</button>
+      </div>
+    </div>
+    <section class="pp-chart-panel">
+      <div class="pp-chart-wrapper">
+        <canvas id="trend-chart"></canvas>
+      </div>
+    </section>
+
+    <hr class="np-rule-double" />
+
+    <!-- Row 3: Doing Well / Doing Poorly (2-Column Broadsheet Split) -->
+    <section class="bs-split-even" aria-label="Sentiment themes">
+      <div class="bs-col">
+        <span class="np-kicker" style="color: var(--forest);">Strengths</span>
+        <h2 class="bs-headline-lg">Doing Well</h2>
+        <div class="pp-theme-list" id="doing-well-list"></div>
+      </div>
+
+      <div class="bs-col">
+        <span class="np-kicker" style="color: var(--crimson);">Friction &amp; Risks</span>
+        <h2 class="bs-headline-lg">Doing Poorly</h2>
+        <div class="pp-theme-list" id="doing-poorly-list"></div>
+      </div>
+    </section>
+
+    <!-- Row 4: Against the Field -->
+    <div class="bs-section-banner">
+      <h2 class="bs-section-title">Against the Field</h2>
+      <span class="bs-section-meta">Organic Sentiment Scale (-100 to +100)</span>
+    </div>
+    <section class="pp-field-panel">
+      <div class="pp-field-list" id="competitor-list"></div>
+      <div class="pp-field-scale" aria-hidden="true">
+        <div></div>
+        <div class="pp-field-scale-marks">
+          <span>-100</span>
+          <span>0</span>
+          <span>+100</span>
+        </div>
+        <div></div>
+      </div>
+    </section>
+
+    <!-- Row 5: Mentions Behind the Score -->
+    <div class="bs-section-banner">
+      <h2 class="bs-section-title">Mentions Behind the Score</h2>
+      <span class="bs-section-meta" id="mentions-count-label"></span>
+    </div>
+    <section class="pp-mentions-panel">
+      <div class="pp-mentions-list" id="mentions-list"></div>
+    </section>
+
+    <!-- Footer Accordion: Method and Coverage -->
+    <details class="pp-method-accordion">
+      <summary>Method and coverage</summary>
+      <div class="pp-method-content">
+        <div class="pp-method-block">
+          <h4>Scoring Scale &amp; Mix</h4>
+          <p>Every qualifying organic mention is scored from <strong>-100</strong> (strongly negative) to <strong>+100</strong> (strongly positive). The overall score and each channel score are the rounded mean of mentions in that bucket (blank/— when 0 mentions appear).</p>
+          <ul>
+            <li><strong>Positive:</strong> score &gt; +10</li>
+            <li><strong>Neutral:</strong> score between -10 and +10</li>
+            <li><strong>Negative:</strong> score &lt; -10</li>
+          </ul>
+        </div>
+        <div class="pp-method-block">
+          <h4>Channels &amp; Noise Filtering</h4>
+          <p>Coverage spans four public buckets: <strong>News &amp; blogs</strong> (tech press, Dev.to, Medium, Habr, engineering blogs), <strong>Dev communities</strong> (Reddit, Hacker News, Stack Overflow, GitHub), <strong>Review sites</strong> (G2, Capterra, TrustRadius, Product Hunt), and <strong>Social &amp; video</strong> (X, Bluesky, LinkedIn, YouTube). Official corporate accounts, vendor SEO/marketing posts, job listings, spam, and pure how-to tutorials without sentiment are excluded.</p>
+        </div>
+        <div class="pp-method-block">
+          <h4>Confidence Thresholds</h4>
+          <ul>
+            <li><strong>Low:</strong> 1–3 mentions or low-engagement posts</li>
+            <li><strong>Medium:</strong> 4–12 mentions across at least 2 distinct sources</li>
+            <li><strong>High:</strong> 13+ mentions or high-engagement community threads</li>
+          </ul>
+        </div>
+        <div class="pp-method-block">
+          <h4>Competitor Tracking &amp; Rolling Average</h4>
+          <p><strong>Against the Field</strong> tracks organic sentiment for Insomnia, Bruno, Hoppscotch, and Apidog on the same -100 to +100 scale. The thick trend line plots the trailing 7-period rolling average (rendered starting from the 3rd period with data).</p>
+        </div>
+      </div>
+    </details>
+  </main>
+
+  <!-- Footer -->
+  <footer class="np-footer">
+    <div class="np-footer-inner">
+      <div>
+        <strong>The Primegraph Chronicle</strong> · Live-synced from the
+        <a href="https://docs.google.com/spreadsheets/d/1UjgqkNUpbaKR4rJoFtGwblOtlH7VqoKVMCM7YE4wnvQ/edit" target="_blank" rel="noopener noreferrer">Postman Pulse History Google Sheet</a>.
+      </div>
+      <div class="np-footer-links">
+        <a href="index.html">Front Page</a>
+        <a href="biscope.html">Biscope</a>
+        <a href="portfolio.html">Portfolio</a>
+        <a href="ai-research.html">AI Research</a>
+        <a href="health.html">Health &amp; Longevity</a>
+        <a href="events.html">Bengaluru Events</a>
+        <a href="postman-pulse.html">Postman Pulse</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="newspaper.js"></script>
+  <script src="postman-pulse.js"></script>
+</body>
+</html>

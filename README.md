@@ -12,6 +12,7 @@ A multi-page, live-synced personal newspaper hosted on GitHub Pages (`biscope.pr
 | [`ai-research.html`](ai-research.html) | **AI Research** | Google Doc — Weekly arXiv papers & long-form essays with keyword search and part filter |
 | [`health.html`](health.html) | **Health & Longevity** | Google Doc — Vitality & Longevity Digest with clinical takeaways |
 | [`events.html`](events.html) | **Bengaluru Events** | Google Sheet — Interactive live Bengaluru events tracker (Cards, Timeline & Table views) |
+| [`postman-pulse.html`](postman-pulse.html) | **Postman Pulse** | Google Sheet — Developer market intelligence, sentiment trends & competitor tracking |
 
 ## How Live Sync Works
 
