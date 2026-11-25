@@ -462,6 +462,29 @@
      1. BISCOPE Broadsheet Renderer
      ------------------------------------------------------------------------ */
 
+  function renderSanitizedInboxTriage(bodyMd) {
+    // Strip all personal email subjects, senders, and contents; keep only Direct Gmail Links
+    const gmailLinks = [];
+    const linkRe = /\[([^\]]+)\]\((https:\/\/mail\.google\.com\/[^)\s]+)\)/g;
+    let m;
+    while ((m = linkRe.exec(bodyMd)) !== null) {
+      gmailLinks.push({
+        label: unescapeGdocMarkdown(m[1]),
+        url: m[2],
+      });
+    }
+
+    let html = `<p>Email subjects, senders, and message contents are omitted on this page for privacy.</p>`;
+    if (gmailLinks.length) {
+      html += `<h4 class="bs-subhead">Direct Gmail Links</h4><ul>`;
+      for (const link of gmailLinks) {
+        html += `<li><a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a></li>`;
+      }
+      html += `</ul>`;
+    }
+    return html;
+  }
+
   function renderBiscopeBroadsheet(md) {
     const sections = splitMarkdownByHeading(md, 3);
     const introSec = sections.find((s) => /good morning/i.test(s.heading)) || sections[0];
@@ -552,10 +575,11 @@
 
     html += `<aside class="bs-split-right">`;
     if (inboxSec) {
+      const sanitizedInboxHtml = renderSanitizedInboxTriage(inboxSec.body);
       html += `<div class="bs-sidebar-box bs-prose" id="biscope-inbox">`;
       html += `<span class="np-kicker">Personal Desk</span>`;
       html += `<h3 class="bs-headline-md" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:0;">${escapeHtml(inboxSec.heading)}</h3>`;
-      html += parseMarkdown(inboxSec.body);
+      html += sanitizedInboxHtml;
       html += `</div>`;
     }
     if (healthSec) {

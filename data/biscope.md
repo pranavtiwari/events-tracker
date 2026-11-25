@@ -7,12 +7,6 @@
 
 ### Inbox Triage & Spam Labeling
 
-Out of 5 matching unread threads, zero new spam or promotional emails were detected—all unread messages are legitimate immigration, support, or booking threads.
-
-* **Newly Flagged as 'maybespam'**: None (0 new emails flagged today).  
-* **Retained in Primary Unread Inbox (Legitimate & High Priority)**:  
-  * **David B. Raft / GIP** (dbr@gip-us.com & EB5Bookings@gotcherlaw.com — 3 threads): "Fw: Aashi Tiwari \- I-526E Request to Correct Receipt and Priority Date", Microsoft Teams meeting invite, and confirmed EB5 Meeting tonight, Wednesday, Nov 25, 2026, 9:30 PM – 10:30 PM IST.  
-  * **CP Plus Support Follow-up** (yfl7u2@mail.instinct.com): Assistant follow-up on Ticket FBEU202611250002 regarding your second CP Plus camera still linked to an old account.  
 * **Direct Gmail Links**:  
   * [Unread 'todelete' Emails](https://mail.google.com/mail/u/0/#search/is%3Aunread+in%3Ainbox+label%3Atodelete)  
   * [Unread 'maybespam' Emails](https://mail.google.com/mail/u/0/#search/is%3Aunread+label%3Amaybespam)  
