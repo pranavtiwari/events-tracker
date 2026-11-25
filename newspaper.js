@@ -412,29 +412,200 @@
   }
 
   /* ------------------------------------------------------------------------
-     Desk-Specific Enhancers
+     Broadsheet Helpers
      ------------------------------------------------------------------------ */
 
-  function enhancePortfolioArticle(articleEl, toolbarEl) {
-    const tables = articleEl.querySelectorAll("table.np-table");
+  function splitMarkdownByHeading(md, level) {
+    const lines = md.replace(/\r\n/g, "\n").split("\n");
+    const regex = new RegExp(`^#{${level}}\\s+(.+)$`);
+    const sections = [];
+    let current = { heading: "", rawHeading: "", bodyLines: [] };
+
+    for (const line of lines) {
+      const m = line.trim().match(regex);
+      if (m) {
+        if (current.heading || current.bodyLines.some((l) => l.trim())) {
+          sections.push({
+            heading: stripMarkdown(current.rawHeading),
+            rawHeading: current.rawHeading,
+            body: current.bodyLines.join("\n").trim(),
+          });
+        }
+        current = { heading: stripMarkdown(m[1]), rawHeading: m[1].trim(), bodyLines: [] };
+      } else {
+        current.bodyLines.push(line);
+      }
+    }
+    if (current.heading || current.bodyLines.some((l) => l.trim())) {
+      sections.push({
+        heading: stripMarkdown(current.rawHeading),
+        rawHeading: current.rawHeading,
+        body: current.bodyLines.join("\n").trim(),
+      });
+    }
+    return sections;
+  }
+
+  function addDropCapToFirstParagraph(html) {
+    return html.replace(/<p>/, '<p class="bs-dropcap">');
+  }
+
+  function renderIndexBar(items) {
+    if (!items.length) return "";
+    const links = items
+      .map((item) => `<a href="#${item.id}">${escapeHtml(item.label)}</a>`)
+      .join('<span class="bs-index-sep" aria-hidden="true">·</span>');
+    return `<nav class="bs-index-bar" aria-label="In this section"><span class="bs-index-label">Inside</span>${links}</nav>`;
+  }
+
+  /* ------------------------------------------------------------------------
+     1. BISCOPE Broadsheet Renderer
+     ------------------------------------------------------------------------ */
+
+  function renderBiscopeBroadsheet(md) {
+    const sections = splitMarkdownByHeading(md, 3);
+    const introSec = sections.find((s) => /good morning/i.test(s.heading)) || sections[0];
+    const inboxSec = sections.find((s) => /inbox/i.test(s.heading));
+    const newsSec = sections.find((s) => /news digest|investigative/i.test(s.heading));
+    const healthSec = sections.find((s) => /health/i.test(s.heading));
+
+    // Extract dateline, weather, global overview from intro
+    let datelineHtml = "";
+    let weatherHtml = "";
+    let globalHtml = "";
+    if (introSec) {
+      const introLines = introSec.body.split("\n");
+      for (const line of introLines) {
+        const t = line.trim();
+        if (!t) continue;
+        if (!datelineHtml && /^\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i.test(t)) {
+          datelineHtml = renderInline(t);
+        } else if (/^\*\s+\*\*Local Weather\*\*/i.test(t)) {
+          weatherHtml = renderInline(t.replace(/^\*\s+\*\*Local Weather\*\*:?\s*/i, ""));
+        } else if (/^\*\s+\*\*Global Overview\*\*/i.test(t)) {
+          globalHtml = renderInline(t.replace(/^\*\s+\*\*Global Overview\*\*:?\s*/i, ""));
+        }
+      }
+    }
+
+    // Split News Digest by H4 (Lead Story vs Quick Hits)
+    let leadTitle = "Daily Investigative Dispatch";
+    let leadBodyHtml = "";
+    let quickHitsItems = [];
+    if (newsSec) {
+      const subSecs = splitMarkdownByHeading(newsSec.body, 4);
+      const leadSub = subSecs.find((s) => /lead story/i.test(s.heading)) || subSecs[0];
+      const quickSub = subSecs.find((s) => /quick hits/i.test(s.heading));
+
+      if (leadSub) {
+        leadTitle = leadSub.heading.replace(/^Lead Story:\s*/i, "");
+        leadBodyHtml = addDropCapToFirstParagraph(parseMarkdown(leadSub.body));
+      }
+
+      if (quickSub) {
+        const qLines = quickSub.body.split("\n").filter((l) => l.trim().startsWith("* "));
+        quickHitsItems = qLines.map((l) => {
+          const raw = l.trim().slice(2);
+          const boldTitle = raw.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
+          if (boldTitle) {
+            return {
+              topic: unescapeGdocMarkdown(boldTitle[1]),
+              bodyHtml: renderInline(boldTitle[2]),
+            };
+          }
+          return { topic: "Dispatch", bodyHtml: renderInline(raw) };
+        });
+      }
+    }
+
+    const indexItems = [
+      { id: "biscope-lead", label: "Lead Story" },
+      ...(quickHitsItems.length ? [{ id: "biscope-quick-hits", label: "Quick Hits" }] : []),
+      ...(inboxSec ? [{ id: "biscope-inbox", label: "Inbox Triage" }] : []),
+      ...(healthSec ? [{ id: "biscope-health", label: "Health Briefs" }] : []),
+    ];
+
+    let html = renderIndexBar(indexItems);
+
+    // Top Briefing Strip (Weather & Global Overview)
+    if (weatherHtml || globalHtml) {
+      html += `<section class="bs-banner-strip" aria-label="Morning briefing strip">`;
+      if (weatherHtml) {
+        html += `<div class="bs-banner-cell"><div class="bs-banner-label">Bengaluru Weather</div><div class="bs-banner-value">${weatherHtml}</div></div>`;
+      }
+      if (globalHtml) {
+        html += `<div class="bs-banner-cell"><div class="bs-banner-label">Global Overview</div><div class="bs-banner-value">${globalHtml}</div></div>`;
+      }
+      html += `</section>`;
+    }
+
+    // Above-the-fold 2-Column Split: Lead Story (Left) + Inbox & Health Sidebars (Right)
+    html += `<section class="bs-split">`;
+    html += `<div class="bs-split-left bs-prose" id="biscope-lead">`;
+    html += `<span class="np-kicker">Lead Story · Investigative Dispatch</span>`;
+    html += `<h2 class="bs-headline-xl">${escapeHtml(leadTitle)}</h2>`;
+    if (datelineHtml) {
+      html += `<div class="bs-meta-line">${datelineHtml}</div>`;
+    }
+    html += leadBodyHtml;
+    html += `</div>`;
+
+    html += `<aside class="bs-split-right">`;
+    if (inboxSec) {
+      html += `<div class="bs-sidebar-box bs-prose" id="biscope-inbox">`;
+      html += `<span class="np-kicker">Personal Desk</span>`;
+      html += `<h3 class="bs-headline-md" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:0;">${escapeHtml(inboxSec.heading)}</h3>`;
+      html += parseMarkdown(inboxSec.body);
+      html += `</div>`;
+    }
+    if (healthSec) {
+      html += `<div class="bs-sidebar-box bs-prose" id="biscope-health">`;
+      html += `<span class="np-kicker">Vitality Wire</span>`;
+      html += `<h3 class="bs-headline-md" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:0;">${escapeHtml(healthSec.heading)}</h3>`;
+      html += parseMarkdown(healthSec.body);
+      html += `</div>`;
+    }
+    html += `</aside>`;
+    html += `</section>`;
+
+    // Quick Hits 3-Column Broadsheet Grid
+    if (quickHitsItems.length) {
+      html += `<div class="bs-section-banner" id="biscope-quick-hits">`;
+      html += `<h2 class="bs-section-title">Quick Hits Across Core Topics</h2>`;
+      html += `<span class="bs-section-meta">${quickHitsItems.length} Dispatches</span>`;
+      html += `</div>`;
+      html += `<section class="bs-grid-3">`;
+      for (const item of quickHitsItems) {
+        html += `<article class="bs-brief bs-prose">`;
+        html += `<span class="np-kicker">${escapeHtml(item.topic)}</span>`;
+        html += `<p>${item.bodyHtml}</p>`;
+        html += `</article>`;
+      }
+      html += `</section>`;
+    }
+
+    return html;
+  }
+
+  /* ------------------------------------------------------------------------
+     2. PORTFOLIO ADVICE Broadsheet Renderer
+     ------------------------------------------------------------------------ */
+
+  function enhancePortfolioTables(containerEl, toolbarEl) {
+    const tables = containerEl.querySelectorAll("table.np-table");
     tables.forEach((table) => {
       const headers = Array.from(table.querySelectorAll("thead th")).map((th) =>
         th.textContent.trim().toLowerCase()
       );
-      const isDecisionTable =
-        headers.includes("ticker") && headers.includes("action");
-      if (!isDecisionTable) return;
+      if (!headers.includes("ticker") || !headers.includes("action")) return;
 
       const tickerIdx = headers.indexOf("ticker");
       const dayIdx = headers.indexOf("1 day %");
       const slDeltaIdx = headers.indexOf("sl delta");
       const actionIdx = headers.indexOf("action");
 
-      // Right-align numeric columns
       table.querySelectorAll("thead th").forEach((th, idx) => {
-        if (idx !== tickerIdx && idx !== actionIdx) {
-          th.classList.add("num");
-        }
+        if (idx !== tickerIdx && idx !== actionIdx) th.classList.add("num");
       });
 
       const actionCounts = { all: 0, SL: 0, Acc: 0, PB: 0, OK: 0 };
@@ -442,7 +613,6 @@
       table.querySelectorAll("tbody tr").forEach((tr) => {
         const cells = Array.from(tr.querySelectorAll("td"));
         actionCounts.all++;
-
         cells.forEach((td, idx) => {
           const raw = td.textContent.trim();
           if (idx === tickerIdx) {
@@ -454,15 +624,8 @@
             else if (key === "ACC") actionCounts.Acc++;
             else if (key === "PB") actionCounts.PB++;
             else if (key === "OK") actionCounts.OK++;
-
             const cls =
-              key === "ACC"
-                ? "action-acc"
-                : key === "SL"
-                ? "action-sl"
-                : key === "PB"
-                ? "action-pb"
-                : "action-ok";
+              key === "ACC" ? "action-acc" : key === "SL" ? "action-sl" : key === "PB" ? "action-pb" : "action-ok";
             td.innerHTML = `<span class="action-badge ${cls}">${escapeHtml(raw)}</span>`;
           } else {
             td.classList.add("num");
@@ -477,11 +640,10 @@
         });
       });
 
-      // Render filter pills in toolbar
       if (toolbarEl) {
         toolbarEl.classList.remove("hidden");
         toolbarEl.innerHTML = `
-          <div class="fp-section-label">Filter Decision Table</div>
+          <div class="fp-section-label">Filter India Decision Table</div>
           <div class="desk-pills" role="group" aria-label="Filter holdings by action">
             <button type="button" class="desk-pill active" data-action-filter="ALL">All (${actionCounts.all})</button>
             <button type="button" class="desk-pill" data-action-filter="SL">SL Alert (${actionCounts.SL})</button>
@@ -493,12 +655,11 @@
         toolbarEl.querySelectorAll("[data-action-filter]").forEach((btn) => {
           btn.addEventListener("click", () => {
             const chosen = btn.dataset.actionFilter;
-            toolbarEl
-              .querySelectorAll("[data-action-filter]")
-              .forEach((b) => b.classList.toggle("active", b === btn));
+            toolbarEl.querySelectorAll("[data-action-filter]").forEach((b) =>
+              b.classList.toggle("active", b === btn)
+            );
             table.querySelectorAll("tbody tr").forEach((tr) => {
-              const match = chosen === "ALL" || tr.dataset.action === chosen;
-              tr.classList.toggle("hidden", !match);
+              tr.classList.toggle("hidden", !(chosen === "ALL" || tr.dataset.action === chosen));
             });
           });
         });
@@ -506,54 +667,245 @@
     });
   }
 
-  function enhanceAiResearchArticle(articleEl, toolbarEl) {
-    // Group each H2 item (and its following siblings until next H1/H2/HR) into .research-entry
-    const children = Array.from(articleEl.children);
-    let currentPart = "papers";
-    let idx = 0;
+  function renderPortfolioBroadsheet(md) {
+    const sections = splitMarkdownByHeading(md, 1);
+    const titleSec = sections.find((s) => /portfolio advice/i.test(s.heading));
+    const execSec = sections.find((s) => /executive summary/i.test(s.heading));
+    const macroSec = sections.find((s) => /macroeconomic|global overview/i.test(s.heading));
+    const actionsSec = sections.find((s) => /priority buy\/sell|quality swap/i.test(s.heading));
+    const watchSec = sections.find((s) => /watchlist/i.test(s.heading));
+    const tableSec = sections.find((s) => /decision table/i.test(s.heading));
 
-    while (idx < children.length) {
-      const el = children[idx];
-      if (el.tagName === "H1") {
-        const txt = el.textContent.toLowerCase();
-        if (txt.includes("part 2") || txt.includes("article") || txt.includes("essay")) {
-          currentPart = "essays";
-        } else if (txt.includes("part 1") || txt.includes("paper")) {
-          currentPart = "papers";
-        }
-        el.dataset.partHeading = currentPart;
-        idx++;
-        continue;
-      }
+    const summary = extractPortfolioSummary(md);
 
-      if (el.tagName === "H2") {
-        const wrapper = document.createElement("section");
-        wrapper.className = "research-entry";
-        wrapper.dataset.part = currentPart;
-        el.parentNode.insertBefore(wrapper, el);
-        wrapper.appendChild(el);
-        idx++;
-        while (
-          idx < children.length &&
-          children[idx].tagName !== "H1" &&
-          children[idx].tagName !== "H2"
-        ) {
-          wrapper.appendChild(children[idx]);
-          idx++;
-        }
-        continue;
+    const indexItems = [
+      ...(execSec ? [{ id: "port-exec", label: "Executive Summary" }] : []),
+      ...(macroSec ? [{ id: "port-macro", label: "Macro & Global" }] : []),
+      ...(actionsSec ? [{ id: "port-actions", label: "Priority Actions" }] : []),
+      ...(watchSec ? [{ id: "port-watch", label: "Watchlist" }] : []),
+      ...(tableSec ? [{ id: "port-table", label: "India Decision Table" }] : []),
+    ];
+
+    let html = renderIndexBar(indexItems);
+
+    // Top Markets Posture Banner
+    html += `<section class="bs-banner-strip" aria-label="Market posture summary">`;
+    html += `<div class="bs-banner-cell"><div class="bs-banner-label">Edition</div><div class="bs-banner-value-mono">${escapeHtml(summary.edition || "Latest Report")}</div></div>`;
+    html += `<div class="bs-banner-cell"><div class="bs-banner-label">Benchmark</div><div class="bs-banner-value-mono val-pos">${escapeHtml(summary.niftyNote)}</div></div>`;
+    html += `<div class="bs-banner-cell"><div class="bs-banner-label">SIP Guidance</div><div class="bs-banner-value-mono" style="color:var(--amber)">${escapeHtml(summary.sipStance)}</div></div>`;
+    if (titleSec && titleSec.body) {
+      html += `<div class="bs-banner-cell"><div class="bs-banner-label">Sources</div><div class="bs-banner-value">${renderInline(titleSec.body)}</div></div>`;
+    }
+    html += `</section>`;
+
+    // 2-Column Editorial Split: Left (Executive + Macro), Right (Numbered Actions + Watchlist Box)
+    html += `<section class="bs-split-even">`;
+
+    html += `<div class="bs-col bs-prose">`;
+    if (execSec) {
+      html += `<div id="port-exec">`;
+      html += `<span class="np-kicker">Opening Bell</span>`;
+      html += `<h2 class="bs-headline-lg">${escapeHtml(execSec.heading)}</h2>`;
+      html += parseMarkdown(execSec.body);
+      html += `</div>`;
+    }
+    if (macroSec) {
+      html += `<hr class="np-rule-single" />`;
+      html += `<div id="port-macro">`;
+      html += `<span class="np-kicker">Global Tape</span>`;
+      html += `<h2 class="bs-headline-lg">${escapeHtml(macroSec.heading)}</h2>`;
+      html += parseMarkdown(macroSec.body);
+      html += `</div>`;
+    }
+    html += `</div>`;
+
+    html += `<div class="bs-col">`;
+    if (actionsSec) {
+      html += `<div id="port-actions" style="margin-bottom:1.75rem;">`;
+      html += `<span class="np-kicker">Action Desk</span>`;
+      html += `<h2 class="bs-headline-lg">${escapeHtml(actionsSec.heading)}</h2>`;
+      const actionLines = actionsSec.body
+        .split("\n")
+        .map((l) => l.trim())
+        .filter((l) => /^\d+\.\s+/.test(l));
+      if (actionLines.length) {
+        html += `<div class="bs-action-list">`;
+        actionLines.forEach((line, idx) => {
+          const text = line.replace(/^\d+\.\s+/, "");
+          html += `<div class="bs-action-item"><div class="bs-action-num">0${idx + 1}</div><div class="bs-prose"><p style="margin:0">${renderInline(text)}</p></div></div>`;
+        });
+        html += `</div>`;
+      } else {
+        html += `<div class="bs-prose">${parseMarkdown(actionsSec.body)}</div>`;
       }
-      idx++;
+      html += `</div>`;
+    }
+    if (watchSec) {
+      html += `<div class="bs-sidebar-box bs-prose" id="port-watch">`;
+      html += `<span class="np-kicker">Radar</span>`;
+      html += `<h3 class="bs-headline-md" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:0;">${escapeHtml(watchSec.heading)}</h3>`;
+      html += parseMarkdown(watchSec.body);
+      html += `</div>`;
+    }
+    html += `</div>`;
+    html += `</section>`;
+
+    // Full-Width Decision Table Section
+    if (tableSec) {
+      html += `<div class="bs-section-banner" id="port-table">`;
+      html += `<h2 class="bs-section-title">${escapeHtml(tableSec.heading)}</h2>`;
+      html += `<span class="bs-section-meta">Live Stop-Loss &amp; Accumulation Levels</span>`;
+      html += `</div>`;
+      html += `<div id="portfolioTableToolbar" class="desk-toolbar hidden"></div>`;
+      html += `<section>${parseMarkdown(tableSec.body)}</section>`;
     }
 
-    if (!toolbarEl) return;
-    const entries = Array.from(articleEl.querySelectorAll(".research-entry"));
-    const papersCount = entries.filter((e) => e.dataset.part === "papers").length;
-    const essaysCount = entries.filter((e) => e.dataset.part === "essays").length;
+    return html;
+  }
 
+  /* ------------------------------------------------------------------------
+     3. AI RESEARCH Broadsheet Renderer
+     ------------------------------------------------------------------------ */
+
+  function parseResearchItemBody(rawBody) {
+    const lines = rawBody.split("\n");
+    const metaLines = [];
+    const restLines = [];
+    let inMeta = true;
+
+    for (const line of lines) {
+      const t = line.trim();
+      if (inMeta && !t) continue;
+      if (inMeta && t.startsWith("* **")) {
+        metaLines.push(t.slice(2));
+      } else {
+        inMeta = false;
+        restLines.push(line);
+      }
+    }
+
+    const subSections = splitMarkdownByHeading(restLines.join("\n"), 3);
+    return { metaLines, subSections };
+  }
+
+  function renderAiResearchBroadsheet(md, toolbarEl) {
+    const h1Sections = splitMarkdownByHeading(md, 1);
+    const editionSec = h1Sections.find((s) => /weekly ai research/i.test(s.heading));
+    const part1Sec = h1Sections.find(
+      (s) => s !== editionSec && (/part 1/i.test(s.heading) || /research papers/i.test(s.heading))
+    );
+    const part2Sec = h1Sections.find(
+      (s) => s !== editionSec && s !== part1Sec && (/part 2/i.test(s.heading) || /articles|essays/i.test(s.heading))
+    );
+
+    const papers = part1Sec ? splitMarkdownByHeading(part1Sec.body, 2) : [];
+    const essays = part2Sec ? splitMarkdownByHeading(part2Sec.body, 2) : [];
+
+    const indexItems = [
+      ...(papers.length ? [{ id: "ai-part-1", label: `Part I: Research Papers (${papers.length})` }] : []),
+      ...(essays.length ? [{ id: "ai-part-2", label: `Part II: Long-Form Essays (${essays.length})` }] : []),
+      ...papers.slice(0, 4).map((p, i) => ({
+        id: `paper-${i + 1}`,
+        label: p.heading.replace(/^\d+\.\s*/, "").split(":")[0],
+      })),
+    ];
+
+    let html = renderIndexBar(indexItems);
+
+    if (editionSec) {
+      html += `<div class="bs-meta-line" style="margin-bottom:1.5rem;">${escapeHtml(editionSec.heading)}</div>`;
+    }
+
+    // PART 1: RESEARCH PAPERS
+    if (papers.length) {
+      html += `<div class="bs-section-banner" id="ai-part-1" data-part-banner="papers">`;
+      html += `<h2 class="bs-section-title">Part I · High-Impact AI Research Papers</h2>`;
+      html += `<span class="bs-section-meta">${papers.length} Peer &amp; Preprint Reviews</span>`;
+      html += `</div>`;
+
+      // Lead Paper (Paper 01) as a full-width 2-column broadsheet spread
+      const lead = papers[0];
+      const leadParsed = parseResearchItemBody(lead.body);
+      const leadSummary = leadParsed.subSections.find((s) => /executive summary/i.test(s.heading));
+      const leadOther = leadParsed.subSections.filter((s) => s !== leadSummary);
+
+      html += `<article class="bs-split research-entry" id="paper-1" data-part="papers" style="padding-bottom:2rem;border-bottom:1px solid var(--rule-strong);margin-bottom:2rem;">`;
+      html += `<div class="bs-split-left bs-prose">`;
+      html += `<span class="np-kicker">Lead Paper · 01</span>`;
+      html += `<h3 class="bs-headline-xl" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:-0.015em;">${escapeHtml(lead.heading.replace(/^\d+\.\s*/, ""))}</h3>`;
+      if (leadParsed.metaLines.length) {
+        html += `<div class="bs-meta-line">${leadParsed.metaLines.map((m) => renderInline(m)).join(" · ")}</div>`;
+      }
+      if (leadSummary) {
+        html += addDropCapToFirstParagraph(parseMarkdown(leadSummary.body));
+      }
+      html += `</div>`;
+
+      html += `<div class="bs-split-right bs-prose">`;
+      for (const sub of leadOther) {
+        html += `<h4 class="bs-subhead">${escapeHtml(sub.heading)}</h4>`;
+        html += parseMarkdown(sub.body);
+      }
+      html += `</div>`;
+      html += `</article>`;
+
+      // Remaining Papers in 2-Column Broadsheet Grid
+      if (papers.length > 1) {
+        html += `<section class="bs-grid-2" data-part-group="papers">`;
+        papers.slice(1).forEach((paper, idx) => {
+          const num = idx + 2;
+          const parsed = parseResearchItemBody(paper.body);
+          html += `<article class="bs-story bs-prose research-entry" id="paper-${num}" data-part="papers">`;
+          html += `<span class="np-kicker">Paper 0${num}</span>`;
+          html += `<h3 class="bs-headline-lg" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:0;">${escapeHtml(paper.heading.replace(/^\d+\.\s*/, ""))}</h3>`;
+          if (parsed.metaLines.length) {
+            html += `<div class="bs-meta-line">${parsed.metaLines.map((m) => renderInline(m)).join("<br />")}</div>`;
+          }
+          for (const sub of parsed.subSections) {
+            html += `<h4 class="bs-subhead">${escapeHtml(sub.heading)}</h4>`;
+            html += parseMarkdown(sub.body);
+          }
+          html += `</article>`;
+        });
+        html += `</section>`;
+      }
+    }
+
+    // PART 2: LONG-FORM ESSAYS
+    if (essays.length) {
+      html += `<div class="bs-section-banner" id="ai-part-2" data-part-banner="essays">`;
+      html += `<h2 class="bs-section-title">Part II · Deep Long-Form AI Articles &amp; Essays</h2>`;
+      html += `<span class="bs-section-meta">${essays.length} Featured Essays</span>`;
+      html += `</div>`;
+
+      html += `<section class="bs-grid-2" data-part-group="essays">`;
+      essays.forEach((essay, idx) => {
+        const num = idx + 1;
+        const parsed = parseResearchItemBody(essay.body);
+        html += `<article class="bs-story bs-prose research-entry" id="essay-${num}" data-part="essays">`;
+        html += `<span class="np-kicker">Essay 0${num}</span>`;
+        html += `<h3 class="bs-headline-lg" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:0;">${escapeHtml(essay.heading.replace(/^\d+\.\s*/, ""))}</h3>`;
+        if (parsed.metaLines.length) {
+          html += `<div class="bs-meta-line">${parsed.metaLines.map((m) => renderInline(m)).join("<br />")}</div>`;
+        }
+        for (const sub of parsed.subSections) {
+          html += `<h4 class="bs-subhead">${escapeHtml(sub.heading)}</h4>`;
+          html += parseMarkdown(sub.body);
+        }
+        html += `</article>`;
+      });
+      html += `</section>`;
+    }
+
+    return { html, papersCount: papers.length, essaysCount: essays.length };
+  }
+
+  function wireAiResearchToolbar(containerEl, toolbarEl, papersCount, essaysCount) {
+    if (!toolbarEl) return;
+    const entries = Array.from(containerEl.querySelectorAll(".research-entry"));
     toolbarEl.classList.remove("hidden");
     toolbarEl.innerHTML = `
-      <input type="search" id="researchSearchInput" class="desk-search" placeholder="Filter papers, authors, topics (e.g. MCP, spatial, interpretability)…" autocomplete="off" />
+      <input type="search" id="researchSearchInput" class="desk-search" placeholder="Search papers, authors, topics (e.g. MCP, spatial, interpretability)…" autocomplete="off" />
       <div class="desk-pills" role="group" aria-label="Filter by section">
         <button type="button" class="desk-pill active" data-part-filter="all">All (${entries.length})</button>
         <button type="button" class="desk-pill" data-part-filter="papers">Research Papers (${papersCount})</button>
@@ -571,6 +923,10 @@
         const textOk = !q || entry.textContent.toLowerCase().includes(q);
         entry.classList.toggle("is-filtered-out", !(partOk && textOk));
       });
+      containerEl.querySelectorAll("[data-part-banner]").forEach((banner) => {
+        const p = banner.dataset.partBanner;
+        banner.classList.toggle("hidden", activePart !== "all" && activePart !== p);
+      });
     }
 
     toolbarEl.querySelector("#researchSearchInput").addEventListener("input", (e) => {
@@ -581,12 +937,118 @@
     toolbarEl.querySelectorAll("[data-part-filter]").forEach((btn) => {
       btn.addEventListener("click", () => {
         activePart = btn.dataset.partFilter;
-        toolbarEl
-          .querySelectorAll("[data-part-filter]")
-          .forEach((b) => b.classList.toggle("active", b === btn));
+        toolbarEl.querySelectorAll("[data-part-filter]").forEach((b) =>
+          b.classList.toggle("active", b === btn)
+        );
         applyFilter();
       });
     });
+  }
+
+  /* ------------------------------------------------------------------------
+     4. HEALTH & LONGEVITY Broadsheet Renderer
+     ------------------------------------------------------------------------ */
+
+  function renderHealthBroadsheet(md) {
+    const h1Sections = splitMarkdownByHeading(md, 1);
+    const headerSec = h1Sections.find((s) => /vitality|digest/i.test(s.heading));
+    const features = h1Sections.filter((s) => /feature article/i.test(s.heading));
+    const summarySec = h1Sections.find((s) => /summary/i.test(s.heading));
+
+    const indexItems = [
+      ...features.map((f, i) => ({
+        id: `health-feature-${i + 1}`,
+        label: f.heading.replace(/^FEATURE ARTICLE \d+:\s*/i, ""),
+      })),
+      ...(summarySec ? [{ id: "health-summary-table", label: "Actionable Summary" }] : []),
+    ];
+
+    let html = renderIndexBar(indexItems);
+
+    if (headerSec && headerSec.body) {
+      html += `<div class="bs-meta-line" style="margin-bottom:1.75rem;">${renderInline(headerSec.body)}</div>`;
+    }
+
+    function parseFeature(feat) {
+      const h2s = splitMarkdownByHeading(feat.body, 2);
+      const item = h2s[0] || { rawHeading: feat.heading, heading: feat.heading, body: feat.body };
+      const lines = item.body.split("\n");
+      let sourceLine = "";
+      const rest = [];
+      for (const l of lines) {
+        const t = l.trim();
+        if (!sourceLine && /^\*\*Source:\*\*/i.test(t)) {
+          sourceLine = t;
+        } else if (/^\\?\|-{3,}\\?\|$/.test(t)) {
+          continue;
+        } else {
+          rest.push(l);
+        }
+      }
+      return {
+        kicker: feat.heading,
+        titleHtml: renderInline(item.rawHeading || feat.heading),
+        sourceHtml: sourceLine ? renderInline(sourceLine) : "",
+        bodyMd: rest.join("\n").trim(),
+      };
+    }
+
+    // Lead Feature (Feature 1) as a full-width 2-column broadsheet spread
+    if (features.length) {
+      const lead = parseFeature(features[0]);
+      // Split bullets: The Study on left, Findings & Takeaways on right
+      const bodyLines = lead.bodyMd.split("\n");
+      const findingsIdx = bodyLines.findIndex((l) => /^\*\s+\*\*(Key Findings|Actionable)/i.test(l.trim()));
+      const leftMd = findingsIdx > 0 ? bodyLines.slice(0, findingsIdx).join("\n") : lead.bodyMd;
+      const rightMd = findingsIdx > 0 ? bodyLines.slice(findingsIdx).join("\n") : "";
+
+      html += `<article class="bs-split" id="health-feature-1">`;
+      html += `<div class="bs-split-left bs-prose">`;
+      html += `<span class="np-kicker">${escapeHtml(lead.kicker)}</span>`;
+      html += `<h2 class="bs-headline-xl">${lead.titleHtml}</h2>`;
+      if (lead.sourceHtml) {
+        html += `<div class="bs-meta-line">${lead.sourceHtml}</div>`;
+      }
+      html += parseMarkdown(leftMd);
+      html += `</div>`;
+
+      html += `<div class="bs-split-right bs-prose">`;
+      html += `<div class="bs-sidebar-box">`;
+      html += `<span class="np-kicker">Clinical Evidence &amp; Protocol</span>`;
+      html += parseMarkdown(rightMd || leftMd);
+      html += `</div>`;
+      html += `</div>`;
+      html += `</article>`;
+    }
+
+    // Remaining Features in 2-Column Broadsheet Spread
+    if (features.length > 1) {
+      html += `<hr class="np-rule-double" />`;
+      html += `<section class="bs-grid-2">`;
+      features.slice(1).forEach((feat, idx) => {
+        const parsed = parseFeature(feat);
+        html += `<article class="bs-story bs-prose" id="health-feature-${idx + 2}">`;
+        html += `<span class="np-kicker">${escapeHtml(parsed.kicker)}</span>`;
+        html += `<h2 class="bs-headline-lg">${parsed.titleHtml}</h2>`;
+        if (parsed.sourceHtml) {
+          html += `<div class="bs-meta-line">${parsed.sourceHtml}</div>`;
+        }
+        html += parseMarkdown(parsed.bodyMd);
+        html += `</article>`;
+      });
+      html += `</section>`;
+    }
+
+    // Full-Width Actionable Summary Table
+    if (summarySec) {
+      html += `<div class="bs-section-banner" id="health-summary-table">`;
+      html += `<h2 class="bs-section-title">${escapeHtml(summarySec.heading)}</h2>`;
+      html += `<span class="bs-section-meta">Evidence-Based Benchmarks</span>`;
+      html += `</div>`;
+      html += `<section>${parseMarkdown(summarySec.body)}</section>`;
+    }
+
+    return html;
   }
 
   /* ------------------------------------------------------------------------
@@ -614,7 +1076,7 @@
   }
 
   /* ------------------------------------------------------------------------
-     Document Desk Page Controller
+     Document Desk Page Controller (Broadsheet Mode)
      ------------------------------------------------------------------------ */
 
   async function initDocPage(slug) {
@@ -622,27 +1084,25 @@
     const desk = DESKS[slug];
     if (!desk) return;
 
-    const articleEl = document.getElementById("editorialArticle");
-    const tocListEl = document.getElementById("editorialTocList");
+    const containerEl = document.getElementById("broadsheetContent") || document.getElementById("editorialArticle");
     const toolbarEl = document.getElementById("deskToolbar");
     const refreshBtn = document.getElementById("npRefreshBtn");
 
-    function renderMarkdownContent(md) {
-      articleEl.innerHTML = parseMarkdown(md);
-      const tocSelector =
-        slug === "ai-research"
-          ? "h1, h2"
-          : slug === "health"
-          ? "h1, h2"
-          : slug === "portfolio"
-          ? "h1"
-          : "h3, h4";
-      buildToc(articleEl, tocListEl, tocSelector);
-
-      if (slug === "portfolio") {
-        enhancePortfolioArticle(articleEl, toolbarEl);
+    function renderBroadsheetContent(md) {
+      if (slug === "biscope") {
+        containerEl.innerHTML = renderBiscopeBroadsheet(md);
+      } else if (slug === "portfolio") {
+        containerEl.innerHTML = renderPortfolioBroadsheet(md);
+        const tableToolbar = document.getElementById("portfolioTableToolbar") || toolbarEl;
+        enhancePortfolioTables(containerEl, tableToolbar);
       } else if (slug === "ai-research") {
-        enhanceAiResearchArticle(articleEl, toolbarEl);
+        const res = renderAiResearchBroadsheet(md, toolbarEl);
+        containerEl.innerHTML = res.html;
+        wireAiResearchToolbar(containerEl, toolbarEl, res.papersCount, res.essaysCount);
+      } else if (slug === "health") {
+        containerEl.innerHTML = renderHealthBroadsheet(md);
+      } else {
+        containerEl.innerHTML = `<div class="bs-prose">${parseMarkdown(md)}</div>`;
       }
     }
 
@@ -650,12 +1110,11 @@
       setSyncState("loading", "Syncing live edition…");
       if (refreshBtn) refreshBtn.disabled = true;
 
-      // Fast first paint from fallback snapshot on initial load
-      if (!articleEl.dataset.rendered) {
+      if (!containerEl.dataset.rendered) {
         try {
           const snap = await fetchDocMarkdown(desk, { forceLive: false });
-          renderMarkdownContent(snap.markdown);
-          articleEl.dataset.rendered = "1";
+          renderBroadsheetContent(snap.markdown);
+          containerEl.dataset.rendered = "1";
         } catch {
           // ignore; live fetch will handle
         }
@@ -663,8 +1122,8 @@
 
       try {
         const result = await fetchDocMarkdown(desk, { forceLive });
-        renderMarkdownContent(result.markdown);
-        articleEl.dataset.rendered = "1";
+        renderBroadsheetContent(result.markdown);
+        containerEl.dataset.rendered = "1";
         if (result.source === "live") {
           setSyncState("live", "Live · Google Docs");
         } else {
@@ -672,8 +1131,8 @@
         }
       } catch (err) {
         setSyncState("fallback", "Offline snapshot");
-        if (!articleEl.dataset.rendered) {
-          articleEl.innerHTML = `<p>Could not load ${escapeHtml(desk.name)}. <a href="${desk.sourceUrl}" target="_blank" rel="noopener noreferrer">Open source document directly</a>.</p>`;
+        if (!containerEl.dataset.rendered) {
+          containerEl.innerHTML = `<p>Could not load ${escapeHtml(desk.name)}. <a href="${desk.sourceUrl}" target="_blank" rel="noopener noreferrer">Open source document directly</a>.</p>`;
         }
       } finally {
         if (refreshBtn) refreshBtn.disabled = false;
