@@ -1,20 +1,20 @@
-# Bengaluru Events Tracker
+# The Primegraph Chronicle
 
-An interactive, live-synced dashboard for the [Bangalore Events Google Sheet](https://docs.google.com/spreadsheets/d/1bD7iUv2YTf8aKaoOxntbqucqKP9RN7t825NWB8aTc0Q/edit?gid=0#gid=0), hosted on GitHub Pages.
+A multi-page, live-synced personal newspaper hosted on GitHub Pages (`events.primegraph.in`), powered directly by the 5 files in the [Google Drive source folder](https://drive.google.com/drive/folders/1cVHSyWRqsO2JVQhBGjZRvfGex4yH4EVy?usp=sharing).
 
-## Live Dashboard
+## Pages & Live Sources
 
-- **GitHub Pages:** https://pranavtiwari.github.io/events-tracker/
+| Page | Section | Source File |
+| :--- | :--- | :--- |
+| [`index.html`](index.html) | **Front Page** | Live-synced summary of all 5 desks with links to each section |
+| [`biscope.html`](biscope.html) | **Biscope** | Google Doc — Daily morning briefing, weather, inbox triage & world news |
+| [`portfolio.html`](portfolio.html) | **Portfolio Advice** | Google Doc — Market overview, SIP posture, priority actions & filterable India decision table |
+| [`ai-research.html`](ai-research.html) | **AI Research** | Google Doc — Weekly arXiv papers & long-form essays with keyword search and part filter |
+| [`health.html`](health.html) | **Health & Longevity** | Google Doc — Vitality & Longevity Digest with clinical takeaways |
+| [`events.html`](events.html) | **Bengaluru Events** | Google Sheet — Interactive live Bengaluru events tracker (Cards, Timeline & Table views) |
 
 ## How Live Sync Works
 
-- On page load (and whenever you click **Refresh**), the dashboard fetches the live `.xlsx` export directly from Google Sheets in the browser using [SheetJS](https://sheetjs.com/), dynamically locating the table header row and extracting both cell values and `=HYPERLINK(...)` booking URLs.
-- If the `.xlsx` fetch is unavailable, it automatically falls back to Google Sheets' `gviz` JSON endpoint and finally to `data/fallback-events.json`.
-
-## Features
-
-- **Priority Zone KPI Cards:** Clickable summary cards for Priority 1 (East Bangalore), Priority 2 (Central Bangalore), and Priority 3 (Rest of Bangalore).
-- **Interactive Charts:** Category breakdown (clickable to filter) and weekly event pace.
-- **Multi-Facet Filtering & Search:** Instant search across titles, venues, localities, and summaries, plus filters for category, sub-genre, locality, and timeframe (`This Weekend`, `Next 7 Days`, etc.).
-- **Multiple Views:** Switch between **Cards**, **Timeline** (chronological agenda), and **Table** views.
-- **Shortlist & Calendar Integration:** Bookmark events locally (`localStorage`), open venue locations in Google Maps, or add events directly to Google Calendar.
+- **Google Docs desks (`biscope.html`, `portfolio.html`, `ai-research.html`, `health.html`)** render instantly from local snapshots in `data/` and fetch the latest Markdown export directly from Google Docs in the browser, with a **Refresh** button in the top bar.
+- **Bengaluru Events (`events.html`)** fetches the live `.xlsx` export from Google Sheets via SheetJS, falling back to `gviz` JSON and `data/fallback-events.json`.
+- **Front Page (`index.html`)** aggregates headlines, metrics, and summaries across all 5 sources automatically.
