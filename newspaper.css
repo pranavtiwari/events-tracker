@@ -1341,7 +1341,7 @@ a:hover {
   color: var(--ink-secondary);
 }
 
-.bs-prose h3,
+.bs-prose h3:not(.bs-headline-xl):not(.bs-headline-lg):not(.bs-headline-md),
 .bs-subhead {
   margin: 1.35rem 0 0.5rem;
   font-family: var(--font-ui);
@@ -1350,6 +1350,12 @@ a:hover {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--vermilion);
+}
+
+.bs-lead-substory {
+  padding-top: 1.25rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--rule-subtle);
 }
 
 .bs-prose ul,

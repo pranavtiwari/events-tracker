@@ -146,6 +146,10 @@
       return "\u0000LINK" + idx + "\u0000";
     });
 
+    // Google Docs often closes a bold run right after an opening paren before a link:
+    // "**Title (**\u0000LINK0\u0000" -> "**Title** (\u0000LINK0\u0000"
+    text = text.replace(/(\*\*[^*\n]+?)(\s*)\(\*\*(\u0000LINK\d+\u0000)/g, "$1**$2($3");
+
     // Escape remaining HTML, unescape Google Docs backslashes, apply emphasis
     text = escapeHtml(unescapeGdocMarkdown(text));
     text = renderEmphasis(text);
@@ -161,7 +165,7 @@
     // Bold (**text**)
     text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
     // Italic (*text*)
-    text = text.replace(/(^|[\s(—–\[])\*([^*\n]+)\*(?=$|[\s).,;:!?—–\]])/g, "$1<em>$2</em>");
+    text = text.replace(/(^|[\s(—–\[])\*([^*\n]+)\*(?=$|[\s).,;:!?—–\]'’])/g, "$1<em>$2</em>");
     return text;
   }
 
@@ -485,12 +489,158 @@
     return html;
   }
 
+  function detectBiscopeHeadingLevel(md) {
+    const lines = md.replace(/\r\n/g, "\n").split("\n");
+    const counts = { 1: 0, 2: 0, 3: 0 };
+    for (const line of lines) {
+      const m = line.trim().match(/^(#{1,3})\s+(.+)$/);
+      if (m) counts[m[1].length]++;
+    }
+    if (counts[3] >= 2 && counts[2] === 0) return 3;
+    if (counts[2] >= 2) return 2;
+    if (counts[3] >= 1) return 3;
+    if (counts[1] >= 2) return 1;
+    return 3;
+  }
+
+  function cleanLeadTitle(title) {
+    let clean = stripMarkdown(title).replace(/\*\*/g, "").trim();
+    clean = clean.replace(/^(?:Lead Story|Lead Editorial)\s*[:—–-]\s*/i, "").trim();
+    if (
+      (clean.startsWith('"') && clean.endsWith('"')) ||
+      (clean.startsWith("“") && clean.endsWith("”"))
+    ) {
+      clean = clean.slice(1, -1).trim();
+    }
+    return clean;
+  }
+
+  function shortenNavLabel(heading) {
+    const stripped = heading.replace(/\s*\([^)]*\)/g, "").replace(/\s+,/g, ",").trim();
+    return stripped || heading;
+  }
+
+  function parseBiscopeDispatch(rawText) {
+    const raw = rawText.trim();
+
+    // Pattern 1: Headline followed by parenthesized source links and colon:
+    // e.g. **Title (**[Src 1](url) & [Src 2](url)): Body...
+    // or   GOOG **vs.** MSFT **— Title (**[Src 1](url)): Body...
+    const srcLinkPattern =
+      /^(.+?)\s*\((?:\*\*)?(\[[^\]]+\]\(https?:\/\/[^)\s]+\)(?:\s*(?:,|&|and)\s*\[[^\]]+\]\(https?:\/\/[^)\s]+\))*)\)(?:\*\*)?\s*:\s+([\s\S]+)$/;
+    const srcMatch = raw.match(srcLinkPattern);
+    if (srcMatch) {
+      return {
+        headline: stripMarkdown(srcMatch[1]).replace(/\*\*/g, "").trim(),
+        sourcesHtml: renderInline(srcMatch[2]),
+        paragraphs: [srcMatch[3].trim()],
+      };
+    }
+
+    // Pattern 2: Classic bold topic prefix "**Topic**: Body"
+    const boldMatch = raw.match(/^\*\*([^*]+)\*\*:?\s+([\s\S]+)$/);
+    if (boldMatch) {
+      return {
+        headline: unescapeGdocMarkdown(boldMatch[1]).replace(/:$/, "").trim(),
+        sourcesHtml: "",
+        paragraphs: [boldMatch[2].trim()],
+      };
+    }
+
+    // Continuation bullet or plain text without a headline
+    return {
+      headline: "",
+      sourcesHtml: "",
+      paragraphs: [raw],
+    };
+  }
+
+  function parseBiscopeSectionDispatches(bodyMd) {
+    const lines = bodyMd.replace(/\r\n/g, "\n").split("\n");
+    const nonEmpty = lines.filter((l) => l.trim());
+    if (!nonEmpty.length) return [];
+
+    // Only parse into structured dispatch cards when the section consists of top-level bullets
+    const allTopLevelBullets = nonEmpty.every((l) => /^[*+-]\s+/.test(l));
+    if (!allTopLevelBullets) return [];
+
+    const items = [];
+    for (const line of nonEmpty) {
+      const raw = line.replace(/^[*+-]\s+/, "");
+      const parsed = parseBiscopeDispatch(raw);
+      if (!parsed.headline && items.length > 0) {
+        items[items.length - 1].paragraphs.push(parsed.paragraphs[0]);
+      } else {
+        items.push(parsed);
+      }
+    }
+    return items;
+  }
+
+  function renderBiscopeTopicDesk(sec, secId) {
+    const items = parseBiscopeSectionDispatches(sec.body);
+    let html = `<div class="bs-section-banner" id="${secId}">`;
+    html += `<h2 class="bs-section-title">${escapeHtml(sec.heading)}</h2>`;
+    if (items.length) {
+      html += `<span class="bs-section-meta">${items.length} ${items.length === 1 ? "Dispatch" : "Dispatches"}</span>`;
+    }
+    html += `</div>`;
+
+    if (items.length === 1) {
+      const item = items[0];
+      html += `<article class="bs-prose">`;
+      if (item.headline) {
+        html += `<h3 class="bs-headline-md">${escapeHtml(item.headline)}</h3>`;
+      }
+      if (item.sourcesHtml) {
+        html += `<div class="bs-meta-line">${item.sourcesHtml}</div>`;
+      }
+      html += item.paragraphs.map((p) => `<p>${renderInline(p)}</p>`).join("");
+      html += `</article>`;
+      return html;
+    }
+
+    if (items.length > 1) {
+      const useThreeCol = items.length === 3 || items.length === 6;
+      const gridClass = useThreeCol ? "bs-grid-3" : "bs-grid-2";
+      const cardClass = useThreeCol ? "bs-brief bs-prose" : "bs-story bs-prose";
+      html += `<section class="${gridClass}">`;
+      for (const item of items) {
+        html += `<article class="${cardClass}">`;
+        if (item.headline) {
+          html += `<h3 class="bs-headline-md">${escapeHtml(item.headline)}</h3>`;
+        }
+        if (item.sourcesHtml) {
+          html += `<div class="bs-meta-line">${item.sourcesHtml}</div>`;
+        }
+        html += item.paragraphs.map((p) => `<p>${renderInline(p)}</p>`).join("");
+        html += `</article>`;
+      }
+      html += `</section>`;
+      return html;
+    }
+
+    html += `<section class="bs-prose">${parseMarkdown(sec.body)}</section>`;
+    return html;
+  }
+
   function renderBiscopeBroadsheet(md) {
-    const sections = splitMarkdownByHeading(md, 3);
-    const introSec = sections.find((s) => /good morning/i.test(s.heading)) || sections[0];
-    const inboxSec = sections.find((s) => /inbox/i.test(s.heading));
+    const headingLevel = detectBiscopeHeadingLevel(md);
+    const sections = splitMarkdownByHeading(md, headingLevel);
+    const introSec =
+      sections.find((s) => /good morning/i.test(s.heading)) ||
+      sections.find((s) => !s.heading && /local weather|global overview/i.test(s.body));
+    const inboxSec = sections.find((s) => /inbox|triage|spam/i.test(s.heading));
     const newsSec = sections.find((s) => /news digest|investigative/i.test(s.heading));
-    const healthSec = sections.find((s) => /health/i.test(s.heading));
+    const healthSec = sections.find((s) => /health|longevity|vitality/i.test(s.heading));
+    const topicSections = sections.filter(
+      (s) =>
+        s !== introSec &&
+        s !== inboxSec &&
+        s !== newsSec &&
+        s !== healthSec &&
+        (s.heading || s.body)
+    );
 
     // Extract dateline, weather, global overview from intro
     let datelineHtml = "";
@@ -503,32 +653,36 @@
         if (!t) continue;
         if (!datelineHtml && /^\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i.test(t)) {
           datelineHtml = renderInline(t);
-        } else if (/^\*\s+\*\*Local Weather\*\*/i.test(t)) {
-          weatherHtml = renderInline(t.replace(/^\*\s+\*\*Local Weather\*\*:?\s*/i, ""));
-        } else if (/^\*\s+\*\*Global Overview\*\*/i.test(t)) {
-          globalHtml = renderInline(t.replace(/^\*\s+\*\*Global Overview\*\*:?\s*/i, ""));
+        } else if (/^[*+-]\s+\*\*Local Weather\*\*/i.test(t)) {
+          weatherHtml = renderInline(t.replace(/^[*+-]\s+\*\*Local Weather\*\*:?\s*/i, ""));
+        } else if (/^[*+-]\s+\*\*Global Overview\*\*/i.test(t)) {
+          globalHtml = renderInline(t.replace(/^[*+-]\s+\*\*Global Overview\*\*:?\s*/i, ""));
         }
       }
     }
 
-    // Split News Digest by H4 (Lead Story vs Quick Hits)
+    // Build Lead Story & remaining desks from either classic News Digest or multi-topic desks
+    let leadKicker = "Lead Story · Investigative Dispatch";
     let leadTitle = "Daily Investigative Dispatch";
+    let leadMetaHtml = datelineHtml;
     let leadBodyHtml = "";
     let quickHitsItems = [];
+    let remainingTopicSections = topicSections;
+
     if (newsSec) {
-      const subSecs = splitMarkdownByHeading(newsSec.body, 4);
+      const subSecs = splitMarkdownByHeading(newsSec.body, Math.min(headingLevel + 1, 4));
       const leadSub = subSecs.find((s) => /lead story/i.test(s.heading)) || subSecs[0];
       const quickSub = subSecs.find((s) => /quick hits/i.test(s.heading));
 
       if (leadSub) {
-        leadTitle = leadSub.heading.replace(/^Lead Story:\s*/i, "");
+        leadTitle = cleanLeadTitle(leadSub.heading || newsSec.heading);
         leadBodyHtml = addDropCapToFirstParagraph(parseMarkdown(leadSub.body));
       }
 
       if (quickSub) {
-        const qLines = quickSub.body.split("\n").filter((l) => l.trim().startsWith("* "));
+        const qLines = quickSub.body.split("\n").filter((l) => /^[*+-]\s+/.test(l.trim()));
         quickHitsItems = qLines.map((l) => {
-          const raw = l.trim().slice(2);
+          const raw = l.trim().replace(/^[*+-]\s+/, "");
           const boldTitle = raw.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/);
           if (boldTitle) {
             return {
@@ -539,11 +693,64 @@
           return { topic: "Dispatch", bodyHtml: renderInline(raw) };
         });
       }
+    } else if (topicSections.length) {
+      const leadSec = topicSections[0];
+      remainingTopicSections = topicSections.slice(1);
+      const dispatches = parseBiscopeSectionDispatches(leadSec.body);
+
+      if (dispatches.length) {
+        const primary = dispatches[0];
+        leadKicker = leadSec.heading ? `Lead Story · ${leadSec.heading}` : "Lead Story · Morning Dispatch";
+        leadTitle = primary.headline ? cleanLeadTitle(primary.headline) : leadSec.heading || leadTitle;
+        const metaParts = [
+          datelineHtml,
+          primary.sourcesHtml ? `Sources: ${primary.sourcesHtml}` : "",
+        ].filter(Boolean);
+        leadMetaHtml = metaParts.join(" · ");
+        leadBodyHtml = addDropCapToFirstParagraph(
+          primary.paragraphs.map((p) => `<p>${renderInline(p)}</p>`).join("")
+        );
+
+        for (const sub of dispatches.slice(1)) {
+          leadBodyHtml += `<article class="bs-lead-substory">`;
+          if (sub.headline) {
+            leadBodyHtml += `<h3 class="bs-headline-md">${escapeHtml(sub.headline)}</h3>`;
+          }
+          if (sub.sourcesHtml) {
+            leadBodyHtml += `<div class="bs-meta-line">${sub.sourcesHtml}</div>`;
+          }
+          leadBodyHtml += sub.paragraphs.map((p) => `<p>${renderInline(p)}</p>`).join("");
+          leadBodyHtml += `</article>`;
+        }
+      } else {
+        leadKicker = "Lead Desk · Morning Dispatch";
+        leadTitle = leadSec.heading || leadTitle;
+        leadBodyHtml = addDropCapToFirstParagraph(parseMarkdown(leadSec.body));
+      }
     }
 
+    // Assign stable anchor IDs for each remaining topic desk
+    const seenTopicIds = new Map();
+    const extraDesks = remainingTopicSections.map((sec) => {
+      const base = `biscope-${slugify(sec.heading || "desk")}`;
+      const count = seenTopicIds.get(base) || 0;
+      seenTopicIds.set(base, count + 1);
+      const id = count === 0 ? base : `${base}-${count + 1}`;
+      return { sec, id };
+    });
+
+    const leadIndexLabel =
+      !newsSec && topicSections.length && topicSections[0].heading
+        ? shortenNavLabel(topicSections[0].heading)
+        : "Lead Story";
+
     const indexItems = [
-      { id: "biscope-lead", label: "Lead Story" },
+      ...(leadBodyHtml ? [{ id: "biscope-lead", label: leadIndexLabel }] : []),
       ...(quickHitsItems.length ? [{ id: "biscope-quick-hits", label: "Quick Hits" }] : []),
+      ...extraDesks.map(({ sec, id }) => ({
+        id,
+        label: shortenNavLabel(sec.heading || "More Dispatches"),
+      })),
       ...(inboxSec ? [{ id: "biscope-inbox", label: "Inbox Triage" }] : []),
       ...(healthSec ? [{ id: "biscope-health", label: "Health Briefs" }] : []),
     ];
@@ -563,36 +770,46 @@
     }
 
     // Above-the-fold 2-Column Split: Lead Story (Left) + Inbox & Health Sidebars (Right)
-    html += `<section class="bs-split">`;
-    html += `<div class="bs-split-left bs-prose" id="biscope-lead">`;
-    html += `<span class="np-kicker">Lead Story · Investigative Dispatch</span>`;
+    const hasSidebar = Boolean(inboxSec || healthSec);
+    if (hasSidebar) {
+      html += `<section class="bs-split">`;
+      html += `<div class="bs-split-left bs-prose" id="biscope-lead">`;
+    } else {
+      html += `<section class="bs-prose" id="biscope-lead">`;
+    }
+
+    html += `<span class="np-kicker">${escapeHtml(leadKicker)}</span>`;
     html += `<h2 class="bs-headline-xl">${escapeHtml(leadTitle)}</h2>`;
-    if (datelineHtml) {
-      html += `<div class="bs-meta-line">${datelineHtml}</div>`;
+    if (leadMetaHtml) {
+      html += `<div class="bs-meta-line">${leadMetaHtml}</div>`;
     }
-    html += leadBodyHtml;
-    html += `</div>`;
+    html += leadBodyHtml || parseMarkdown(md);
 
-    html += `<aside class="bs-split-right">`;
-    if (inboxSec) {
-      const sanitizedInboxHtml = renderSanitizedInboxTriage(inboxSec.body);
-      html += `<div class="bs-sidebar-box bs-prose" id="biscope-inbox">`;
-      html += `<span class="np-kicker">Personal Desk</span>`;
-      html += `<h3 class="bs-headline-md" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:0;">${escapeHtml(inboxSec.heading)}</h3>`;
-      html += sanitizedInboxHtml;
+    if (hasSidebar) {
       html += `</div>`;
+      html += `<aside class="bs-split-right">`;
+      if (inboxSec) {
+        const sanitizedInboxHtml = renderSanitizedInboxTriage(inboxSec.body);
+        html += `<div class="bs-sidebar-box bs-prose" id="biscope-inbox">`;
+        html += `<span class="np-kicker">Personal Desk</span>`;
+        html += `<h3 class="bs-headline-md">${escapeHtml(inboxSec.heading)}</h3>`;
+        html += sanitizedInboxHtml;
+        html += `</div>`;
+      }
+      if (healthSec) {
+        html += `<div class="bs-sidebar-box bs-prose" id="biscope-health">`;
+        html += `<span class="np-kicker">Vitality Wire</span>`;
+        html += `<h3 class="bs-headline-md">${escapeHtml(healthSec.heading)}</h3>`;
+        html += parseMarkdown(healthSec.body);
+        html += `</div>`;
+      }
+      html += `</aside>`;
+      html += `</section>`;
+    } else {
+      html += `</section>`;
     }
-    if (healthSec) {
-      html += `<div class="bs-sidebar-box bs-prose" id="biscope-health">`;
-      html += `<span class="np-kicker">Vitality Wire</span>`;
-      html += `<h3 class="bs-headline-md" style="margin-top:0;color:var(--ink-primary);text-transform:none;letter-spacing:0;">${escapeHtml(healthSec.heading)}</h3>`;
-      html += parseMarkdown(healthSec.body);
-      html += `</div>`;
-    }
-    html += `</aside>`;
-    html += `</section>`;
 
-    // Quick Hits 3-Column Broadsheet Grid
+    // Classic Quick Hits 3-Column Broadsheet Grid
     if (quickHitsItems.length) {
       html += `<div class="bs-section-banner" id="biscope-quick-hits">`;
       html += `<h2 class="bs-section-title">Quick Hits Across Core Topics</h2>`;
@@ -606,6 +823,11 @@
         html += `</article>`;
       }
       html += `</section>`;
+    }
+
+    // Multi-Topic Broadsheet Desks (Geopolitics overflow, Markets, HN, Security, Sports, etc.)
+    for (const { sec, id } of extraDesks) {
+      html += renderBiscopeTopicDesk(sec, id);
     }
 
     return html;
@@ -1174,45 +1396,108 @@
      Front Page (Homepage) Live Summary Controller
      ------------------------------------------------------------------------ */
 
+  function truncateExcerpt(text, maxLen) {
+    const clean = String(text || "").trim();
+    if (clean.length <= maxLen) return clean;
+    const cut = clean.slice(0, maxLen).replace(/\s+\S*$/, "").replace(/[,;:\-—–]+$/, "");
+    return `${cut || clean.slice(0, maxLen)}…`;
+  }
+
   function extractBiscopeSummary(md) {
-    const lines = md.split("\n");
+    const lines = md.replace(/\r\n/g, "\n").split("\n");
     const dateLine =
       lines.find((l) => /^\*\*(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)/i.test(l.trim())) ||
       "";
     const weatherLine = lines.find((l) => /Local Weather/i.test(l)) || "";
     const globalLine = lines.find((l) => /Global Overview/i.test(l)) || "";
-    const leadHeadingLine = lines.find((l) => /^####\s+Lead Story/i.test(l.trim())) || "";
+    const leadHeadingLine = lines.find((l) => /^#{3,4}\s+Lead Story/i.test(l.trim())) || "";
 
-    // Find paragraph right after Lead Story heading
+    let headline = leadHeadingLine ? cleanLeadTitle(leadHeadingLine) : "";
+
+    // Find paragraph right after classic Lead Story heading
     let leadPara = "";
-    const leadIdx = lines.findIndex((l) => /^####\s+Lead Story/i.test(l.trim()));
+    const leadIdx = lines.findIndex((l) => /^#{3,4}\s+Lead Story/i.test(l.trim()));
     if (leadIdx !== -1) {
       for (let i = leadIdx + 1; i < lines.length; i++) {
         const t = lines[i].trim();
-        if (t && !t.startsWith("*") && !t.startsWith("#")) {
+        if (t && !/^[*+-]\s+/.test(t) && !t.startsWith("#")) {
           leadPara = stripMarkdown(t);
           break;
         }
       }
     }
 
-    // Grab top 3 Quick Hits bullets
+    // Grab top 3 Quick Hits bullets (classic format)
     const quickIdx = lines.findIndex((l) => /Quick Hits/i.test(l));
     const quickHits = [];
     if (quickIdx !== -1) {
       for (let i = quickIdx + 1; i < lines.length && quickHits.length < 3; i++) {
         const t = lines[i].trim();
-        if (t.startsWith("###")) break;
-        if (t.startsWith("* ")) {
-          const clean = stripMarkdown(t.slice(2));
+        if (/^#{1,3}\s+/.test(t)) break;
+        if (/^[*+-]\s+/.test(t)) {
+          const clean = stripMarkdown(t.replace(/^[*+-]\s+/, ""));
           const colon = clean.indexOf(":");
           if (colon > 0 && colon < 45) {
             quickHits.push({
               topic: clean.slice(0, colon),
-              body: clean.slice(colon + 1).trim().slice(0, 170) + "…",
+              body: truncateExcerpt(clean.slice(colon + 1).trim(), 170),
             });
           } else {
-            quickHits.push({ topic: "Dispatch", body: clean.slice(0, 170) + "…" });
+            quickHits.push({ topic: "Dispatch", body: truncateExcerpt(clean, 170) });
+          }
+        }
+      }
+    }
+
+    // Multi-topic format fallback (e.g. Geopolitics, Stock Market, Hacker News, Security, Sports)
+    if (!headline || !leadPara || !quickHits.length) {
+      const headingLevel = detectBiscopeHeadingLevel(md);
+      const sections = splitMarkdownByHeading(md, headingLevel);
+      const introSec =
+        sections.find((s) => /good morning/i.test(s.heading)) ||
+        sections.find((s) => !s.heading && /local weather|global overview/i.test(s.body));
+      const topicSections = sections.filter(
+        (s) =>
+          s !== introSec &&
+          !/inbox|triage|spam|health|longevity|vitality|news digest|investigative/i.test(s.heading) &&
+          (s.heading || s.body)
+      );
+
+      if (topicSections.length) {
+        const leadDispatches = parseBiscopeSectionDispatches(topicSections[0].body);
+        if (!headline) {
+          headline =
+            (leadDispatches[0] && leadDispatches[0].headline
+              ? cleanLeadTitle(leadDispatches[0].headline)
+              : topicSections[0].heading) || "";
+        }
+        if (!leadPara && leadDispatches[0] && leadDispatches[0].paragraphs.length) {
+          leadPara = truncateExcerpt(stripMarkdown(leadDispatches[0].paragraphs[0]), 360);
+        }
+
+        if (!quickHits.length) {
+          // Pick the top dispatch from each of the next topic desks
+          for (const sec of topicSections.slice(1)) {
+            if (quickHits.length >= 3) break;
+            const dispatches = parseBiscopeSectionDispatches(sec.body);
+            if (dispatches.length) {
+              const first = dispatches[0];
+              const bodyText = stripMarkdown(first.paragraphs[0] || "");
+              const summary = first.headline ? `${first.headline} — ${bodyText}` : bodyText;
+              quickHits.push({
+                topic: shortenNavLabel(sec.heading || "Dispatch"),
+                body: truncateExcerpt(summary, 175),
+              });
+            }
+          }
+          // Backfill from secondary items in the first topic section if needed
+          for (const sub of leadDispatches.slice(1)) {
+            if (quickHits.length >= 3) break;
+            const bodyText = stripMarkdown(sub.paragraphs[0] || "");
+            quickHits.push({
+              topic: sub.headline || shortenNavLabel(topicSections[0].heading || "Dispatch"),
+              body: truncateExcerpt(bodyText, 175),
+            });
           }
         }
       }
@@ -1220,11 +1505,9 @@
 
     return {
       date: stripMarkdown(dateLine),
-      weather: stripMarkdown(weatherLine).replace(/^[-*]\s*Local Weather:\s*/i, ""),
-      headline:
-        stripMarkdown(leadHeadingLine).replace(/^Lead Story:\s*/i, "") ||
-        "Daily World & Morning Briefing",
-      lead: leadPara || stripMarkdown(globalLine).replace(/^[-*]\s*Global Overview:\s*/i, ""),
+      weather: stripMarkdown(weatherLine).replace(/^[*+-]\s*Local Weather:\s*/i, ""),
+      headline: headline || "Daily World & Morning Briefing",
+      lead: leadPara || stripMarkdown(globalLine).replace(/^[*+-]\s*Global Overview:\s*/i, ""),
       quickHits,
     };
   }
